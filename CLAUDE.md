@@ -9,6 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## 环境约束
 
 - **Windows 11**，Shell 为 bash (Git Bash / MSYS2)
+- **编码陷阱**：Windows CMD 默认 GBK (936)，Git Bash 默认 UTF-8。执行含中文输出的命令前必须 `chcp 65001` 切换控制台为 UTF-8，否则中文在管道/重定向中变为乱码
 - **无 Python**（`python`/`python3` 均为 Microsoft Store 占位，exit code 49）
 - Node.js 通过 `winget install OpenJS.NodeJS.LTS` 安装，**使用前需要 `export PATH="$PATH:/c/Program Files/nodejs"`**
 - **pandoc** 可用，是读取 EPUB 的唯一方式

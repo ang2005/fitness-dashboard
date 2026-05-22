@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="referrer" content="no-referrer">
+<title>阅读看板</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+body{background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#333;border-radius:4px}
+.book-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+@media(min-width:480px){.book-grid{grid-template-columns:repeat(5,1fr)}}
+@media(min-width:640px){.book-grid{grid-template-columns:repeat(7,1fr)}}
+@media(min-width:768px){.book-grid{grid-template-columns:repeat(9,1fr)}}
+@media(min-width:1024px){.book-grid{grid-template-columns:repeat(11,1fr)}}
+@media(min-width:1280px){.book-grid{grid-template-columns:repeat(13,1fr)}}
+.book-cover{aspect-ratio:3/4;border-radius:3px;overflow:hidden;cursor:pointer;transition:transform .2s,filter .2s,box-shadow .2s;background:#1a1a1a;position:relative}
+.book-cover:hover{transform:scale(1.08);filter:brightness(1.2);box-shadow:0 8px 25px rgba(255,255,255,.15);z-index:10;position:relative}
+.book-cover img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.book-cover .fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#555;text-align:center;padding:8px;line-height:1.3;overflow:hidden}
+.book-cover .fallback span{display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.receipt-grid{display:grid;grid-template-columns:repeat(1,1fr);gap:20px}
+@media(min-width:480px){.receipt-grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:768px){.receipt-grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:1024px){.receipt-grid{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:1280px){.receipt-grid{grid-template-columns:repeat(5,1fr)}}
+.receipt-card{background:#F7F3EB;color:#1a1a1a;padding:24px 16px 20px;transition:transform .2s,box-shadow .2s;border-radius:3px;border-top:2px dashed #d9d0bd;border-bottom:2px dashed #d9d0bd}
+.receipt-card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,.5)}
+.receipt-card .dashed{border-top:1px dashed #c5bfb0;margin:12px 0}
+.receipt-card .note-text{font-family:Georgia,"Noto Serif SC","SimSun","宋体",serif;line-height:1.85;font-size:14px;letter-spacing:.02em}
+.search-box{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 14px 8px 34px;color:#fff;width:100%;outline:none;transition:border .2s}
+.search-box:focus{border-color:rgba(255,255,255,.3)}
+.search-box::placeholder{color:rgba(255,255,255,.3)}
+.pill{padding:5px 14px;border-radius:20px;font-size:13px;cursor:pointer;transition:background .15s;white-space:nowrap;border:none;background:0}
+.pill.on{background:rgba(255,255,255,.12);color:#fff}
+.pill.off{color:rgba(255,255,255,.45)}
+.pill.off:hover{color:rgba(255,255,255,.8)}
+.tab-item{padding:10px 20px;font-size:14px;cursor:pointer;color:rgba(255,255,255,.4);border-bottom:2px solid transparent;transition:all .15s;background:0;border-top:0;border-left:0;border-right:0}
+.tab-item.on{color:#fff;border-bottom-color:#fff}
+.btn-dice{padding:6px 14px;border-radius:20px;font-size:13px;cursor:pointer;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);border:none;transition:background .15s}
+.btn-dice:hover{background:rgba(255,255,255,.14);color:#fff}
+.sticky-bar{border-bottom:1px solid rgba(255,255,255,.05)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.ani{animation:fadeUp .3s ease-out forwards}
+</style></head>
+<body>
+
+<nav class="sticky top-0 z-50 bg-black/90 backdrop-blur-md sticky-bar px-4 pt-3">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <div class="flex gap-0">
+      <button class="tab-item on" data-tab="books" onclick="S.tab('books')">书墙</button>
+      <button class="tab-item" data-tab="notes" onclick="S.tab('notes')">笔记卡片</button>
+    </div>
+    <span class="text-xs text-white/20 hidden sm:inline" id="header-stat">100 本书 · 54 条笔记</span>
+  </div>
+</nav>
+
+<main class="max-w-7xl mx-auto px-4 py-6">
+
+<!-- ====== 书墙 ====== -->
+<section id="sec-books">
+  <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+    <div>
+      <h1 class="text-4xl sm:text-5xl font-bold tracking-tight" id="book-count-title">234 本书，</h1>
+      <h1 class="text-4xl sm:text-5xl font-bold tracking-tight">铺成一面墙。</h1>
+    </div>
+    <div class="flex flex-col gap-3 sm:w-64">
+      <div class="relative">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input class="search-box" placeholder="搜索书名、作者、分类" oninput="S.filterBooks()" id="book-search">
+      </div>
+      <div class="flex gap-3 text-xs" data-pills="book-sort">
+        <span class="pill on" onclick="S.sortBooks('recent',this)">最近阅读</span>
+        <span class="pill off" onclick="S.sortBooks('notes',this)">笔记最多</span>
+        <span class="pill off" onclick="S.sortBooks('read',this)">已读优先</span>
+        <span class="pill off" onclick="S.sortBooks('title',this)">书名排序</span>
+      </div>
+    </div>
+  </div>
+  <div class="book-grid" id="book-grid"></div>
+  <div class="text-center py-10 text-white/20 hidden" id="book-empty">没有匹配的书籍</div>
+</section>
+
+<!-- ====== 笔记卡片 ====== -->
+<section id="sec-notes" class="hidden">
+  <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+    <h1 class="text-3xl sm:text-4xl font-bold tracking-tight">划线和想法，<br>铺成卡片。</h1>
+    <div class="flex flex-col gap-3 sm:w-72">
+      <div class="relative">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input class="search-box" placeholder="搜索划线、想法、书名、章节" oninput="S.filterNotes()" id="note-search">
+      </div>
+      <button class="btn-dice" onclick="S.randomNotes()">&#127922; 随机一组</button>
+      <div class="flex gap-3 text-xs" data-pills="note-filter">
+        <span class="pill on" onclick="S.filterNoteType('all',this)">全部</span>
+        <span class="pill off" onclick="S.filterNoteType('highlight',this)">划线</span>
+        <span class="pill off" onclick="S.filterNoteType('thought',this)">想法</span>
+      </div>
+      <div class="flex gap-3 text-xs" data-pills="note-sort">
+        <span class="pill on" onclick="S.sortNotes('latest',this)">最新</span>
+        <span class="pill off" onclick="S.sortNotes('bybook',this)">按书</span>
+        <span class="pill off" onclick="S.sortNotes('bychapter',this)">按章节</span>
+      </div>
+    </div>
+  </div>
+  <div class="receipt-grid" id="receipt-grid"></div>
+  <div class="text-center py-10 text-white/20 hidden" id="note-empty">没有匹配的笔记</div>
+</section>
+
+</main>
+
+<script src="book_data.js"></script>
+<script src="notes_data.js"></script>
+<script>
+// ===== 数据引用 =====
+// 从 book_data.js 和 notes_data.js 加载
+const B = typeof BOOK_DATA !== 'undefined' ? BOOK_DATA : [];
+const N = typeof NOTES_DATA !== 'undefined' ? NOTES_DATA : [];
+
+// 更新 header 统计和标题
+(function(){
+  const el = document.getElementById('header-stat');
+  if (el) el.textContent = B.length + ' 本书 · ' + N.length + ' 条笔记';
+  const title = document.getElementById('book-count-title');
+  if (title) title.textContent = B.length + ' 本书，';
+})();
+
+// ===== 核心状态机 =====
+const S = {
+  bookSort: 'recent', bookQ: '',
+  noteSort: 'latest', noteType: 'all', noteQ: '', notes: [...N],
+
+  // 工具：切换一组 pill 的 active 状态
+  _pills(container, el) {
+    container.querySelectorAll('.pill').forEach(p => p.className = 'pill off');
+    el.className = 'pill on';
+  },
+
+  // Tab 切换
+  tab(t) {
+    ['books','notes'].forEach(k => {
+      document.getElementById('sec-'+k).classList.toggle('hidden', k!==t);
+      document.querySelector('[data-tab="'+k+'"]').className = 'tab-item' + (k===t?' on':'');
+    });
+  },
+
+  // ===== 书墙 =====
+  filterBooks() { this.bookQ = document.getElementById('book-search').value; this._renderBooks(); },
+
+  sortBooks(type, el) {
+    this.bookSort = type;
+    this._pills(el.closest('[data-pills]'), el);
+    this._renderBooks();
+  },
+
+  _renderBooks() {
+    let b = [...B];
+    if (this.bookQ) { const q = this.bookQ.toLowerCase(); b = b.filter(x => (x[0]||'').toLowerCase().includes(q) || (x[2]||'').toLowerCase().includes(q)); }
+    switch(this.bookSort) {
+      case 'notes': b.sort((a,b)=>(b[3]||0)-(a[3]||0)); break;
+      case 'read': b.sort((a,b)=>(b[4]||0)-(a[4]||0)); break;
+      case 'title': b.sort((a,b)=>(a[0]||'').localeCompare(b[0]||'','zh')); break;
+    }
+    const g = document.getElementById('book-grid'), e = document.getElementById('book-empty');
+    if (!b.length) { g.innerHTML=''; e.classList.remove('hidden'); return; }
+    e.classList.add('hidden');
+    g.innerHTML = b.map(x => {
+      const title = x[0] || '';
+      const cover = x[1] || '';
+      const author = x[2] || '';
+      const notes = x[3] || 0;
+      return '<div class="book-cover" title="' + title + (author?' — ' + author:'') + (notes?' · ' + notes + '条笔记':'') + '">'
+        + '<img src="' + cover + '" alt="' + title + '" loading="lazy" referrerpolicy="no-referrer"'
+        + ' onerror="var d=document.createElement(\'div\');d.className=\'fallback\';var s=document.createElement(\'span\');s.textContent=this.alt;d.appendChild(s);this.parentElement.appendChild(d);this.remove()">'
+        + '</div>';
+    }).join('');
+  },
+
+  // ===== 笔记 =====
+  filterNotes() { this.noteQ = document.getElementById('note-search').value; this._renderNotes(); },
+
+  filterNoteType(type, el) { this.noteType = type; this._pills(el.closest('[data-pills]'), el); this._renderNotes(); },
+
+  sortNotes(type, el) { this.noteSort = type; this._pills(el.closest('[data-pills]'), el); this._renderNotes(); },
+
+  randomNotes() {
+    this.notes = [...N].sort(() => Math.random() - 0.5).slice(0, 8);
+    this.noteQ = ''; this.noteType = 'all';
+    document.getElementById('note-search').value = '';
+    const c = document.querySelector('[data-pills="note-filter"]');
+    if (c) { c.querySelectorAll('.pill').forEach(p => p.className='pill off'); c.querySelector('.pill').className='pill on'; }
+    this._renderNotes();
+  },
+
+  _renderNotes() {
+    let ns = [...this.notes];
+    if (this.noteType === 'highlight') ns = ns.filter(n => n.y === 'highlight');
+    else if (this.noteType === 'thought') ns = ns.filter(n => n.y === 'thought');
+    if (this.noteQ) { const q = this.noteQ.toLowerCase(); ns = ns.filter(n => (n.t||'').toLowerCase().includes(q) || (n.b||'').toLowerCase().includes(q) || (n.c||'').toLowerCase().includes(q)); }
+    switch(this.noteSort) {
+      case 'bybook': ns.sort((a,b)=>(a.b||'').localeCompare(b.b||'','zh')); break;
+      case 'bychapter': ns.sort((a,b)=>(a.c||'').localeCompare(b.c||'','zh')); break;
+      default: ns.sort((a,b)=>(b.d||'').localeCompare(a.d||''));
+    }
+    const g = document.getElementById('receipt-grid'), e = document.getElementById('note-empty');
+    if (!ns.length) { g.innerHTML=''; e.classList.remove('hidden'); return; }
+    e.classList.add('hidden');
+    g.innerHTML = ns.map((n,i) => `
+      <div class="receipt-card ani" style="animation-delay:${i*.03}s">
+        <div style="text-align:center;font-size:11px;color:#8b8578;letter-spacing:.1em">Booko Board</div>
+        <div style="text-align:center;font-size:11px;font-weight:600;color:#5c574a">Note Receipt</div>
+        <div class="dashed"></div>
+        <div class="note-text">${(n.t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+        <div class="dashed"></div>
+        <div style="font-size:11px;color:#8b8578;line-height:1.6">
+          <div style="color:#5c574a;font-weight:500">${(n.b||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>
+          <div>${n.y==='thought'?'想法':'划线'} · ${(n.a||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>
+          <div>${(n.c||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>
+          <div style="color:#b0a896">${n.d||''}</div>
+        </div>
+      </div>`).join('');
+  },
+
+  init() { this._renderBooks(); this._renderNotes(); }
+};
+S.init();
+</script>
+</body>
+</html>
