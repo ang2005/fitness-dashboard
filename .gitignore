@@ -21,5 +21,8 @@ Desktop.ini
 # CC Switch 工具
 cc switch/
 
+# Lock files
+*.lock
+
 # Node
 node_modules/

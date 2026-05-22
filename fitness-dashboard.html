@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>减脂力量看板</title>
+<title>减脂力量 · 七部曲看板</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
@@ -140,26 +140,64 @@
 
   #mealSection { display: none; }
   #historySection { display: none; }
+
+  /* ═══ qiqu 专属样式 ═══ */
+  .card.done { border-color: var(--green); border-width: 1.5px; background: rgba(34,197,94,0.04); }
+  .step-toggle {
+    width: 44px; height: 44px; border-radius: 50%; border: 2.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; cursor: pointer; transition: all 0.2s; flex-shrink: 0;
+  }
+  .step-toggle.done { background: var(--green); border-color: var(--green); }
+  input[type="text"], textarea {
+    background: var(--input-bg); border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; padding: 8px 10px; width: 100%; font-size: 14px;
+    font-family: inherit; resize: vertical;
+  }
+  input[type="text"]:focus, textarea:focus { outline: none; border-color: var(--accent); }
+  .progress-bar { height: 6px; border-radius: 3px; background: var(--border); overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.4s ease; border-radius: 3px; }
+  .cal-cell {
+    aspect-ratio: 1; border-radius: 8px; display: flex; align-items: center;
+    justify-content: center; font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: all 0.15s; border: 1.5px solid transparent; position: relative;
+  }
+  .cal-cell.today { border-color: var(--accent); }
+  .cal-cell.high { background: rgba(245,158,11,0.35); color: #fff; }
+  .cal-cell.mid  { background: rgba(245,158,11,0.15); color: var(--text); }
+  .cal-cell.low  { background: rgba(100,116,139,0.12); color: var(--muted); }
+  .cal-cell.none { color: var(--muted); }
+  .cal-cell:active { transform: scale(0.9); }
+  .stat-num { font-size: 28px; font-weight: 800; line-height: 1; }
+  .stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .btn-ghost.active { border-color: var(--accent); color: var(--accent); background: rgba(245,158,11,0.08); }
+  .mode-tab-qiqu {
+    padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--card); color: var(--muted); font-weight: 600; font-size: 13px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .mode-tab-qiqu.active { background: var(--accent); border-color: var(--accent); color: #0a0a0c; }
 </style>
 </head>
 <body class="max-w-lg mx-auto px-4 py-6">
 
-<!-- MODE TOGGLE -->
-<div class="flex gap-2 mb-5 p-1 rounded-xl bg-[#14141f] border border-[#1e293b]">
-  <button class="mode-tab active flex-1 py-2.5 rounded-lg text-sm font-bold transition-all"
-          data-mode="workout" id="modeWorkout">训练</button>
-  <button class="mode-tab flex-1 py-2.5 rounded-lg text-sm font-bold transition-all"
-          data-mode="meal" id="modeMeal">食谱</button>
-  <button class="mode-tab flex-1 py-2.5 rounded-lg text-sm font-bold transition-all"
-          data-mode="history" id="modeHistory">复盘</button>
+<!-- ═══════════════ 顶层双标签页 ═══════════════ -->
+<div class="flex gap-2 mb-4 p-1 rounded-xl bg-[#14141f] border border-[#1e293b]">
+  <button class="top-tab active flex-1 py-2.5 rounded-lg text-sm font-bold transition-all"
+          data-top="fitness" id="topTabFitness">力量看板</button>
+  <button class="top-tab flex-1 py-2.5 rounded-lg text-sm font-bold transition-all"
+          data-top="qiqu" id="topTabQiqu">七部曲日课</button>
 </div>
 <style>
-  .mode-tab { color: var(--muted); background: transparent; border: none; cursor: pointer; }
-  .mode-tab.active { background: var(--accent); color: #fff; }
+  .top-tab { color: var(--muted); background: transparent; border: none; cursor: pointer; }
+  .top-tab.active { background: var(--accent); color: #fff; }
 </style>
 
-<!-- TOAST -->
+<!-- SHARED TOAST -->
 <div id="toast" class="toast hidden"></div>
+
+<!-- ═══════════════  FITNESS SECTION ═══════════════ -->
+<div id="fitnessSection">
 
 <!-- HEADER -->
 <div class="flex items-center justify-between mb-6">
@@ -181,10 +219,23 @@
   </div>
 </div>
 
-<!-- ═══════════════ 训练模块 ═══════════════ -->
+<!-- MODE TOGGLE -->
+<div class="flex gap-2 mb-5 p-1 rounded-xl bg-[#14141f] border border-[#1e293b]">
+  <button class="mode-tab active flex-1 py-2.5 rounded-lg text-sm font-bold transition-all"
+          data-mode="workout" id="modeWorkout">训练</button>
+  <button class="mode-tab flex-1 py-2.5 rounded-lg text-sm font-bold transition-all"
+          data-mode="meal" id="modeMeal">食谱</button>
+  <button class="mode-tab flex-1 py-2.5 rounded-lg text-sm font-bold transition-all"
+          data-mode="history" id="modeHistory">复盘</button>
+</div>
+<style>
+  .mode-tab { color: var(--muted); background: transparent; border: none; cursor: pointer; }
+  .mode-tab.active { background: var(--accent); color: #fff; }
+</style>
+
+<!-- 训练模块 -->
 <div id="workoutSection">
 
-<!-- 每日推荐运动量卡片 (可折叠) -->
 <div class="volume-card">
   <div class="collapse-header" onclick="document.getElementById('volumeBody').classList.toggle('open')">
     <div class="flex items-center gap-2">
@@ -198,14 +249,12 @@
   </div>
 </div>
 
-<!-- DAY SELECTOR -->
 <div class="flex gap-2 mb-5 overflow-x-auto pb-1">
   <button class="day-tab active" data-day="0">Day A · 推主导</button>
   <button class="day-tab" data-day="1">Day B · 拉主导</button>
   <button class="day-tab" data-day="2">Day C · 腿核心</button>
 </div>
 
-<!-- STATS ROW -->
 <div class="grid grid-cols-3 gap-2 mb-5">
   <div class="card text-center py-3">
     <div class="text-xl font-bold accent-text" id="statDone">0</div>
@@ -221,10 +270,8 @@
   </div>
 </div>
 
-<!-- EXERCISE LIST -->
 <div id="exerciseList"></div>
 
-<!-- ACTION BUTTONS -->
 <div class="flex gap-3 mt-5">
   <button class="btn-accent flex-1" onclick="resetAll()">重置今日</button>
   <button class="flex-1 py-3 rounded-xl border border-slate-700 text-slate-400 font-bold text-sm bg-transparent"
@@ -239,7 +286,7 @@
 
 </div><!-- /workoutSection -->
 
-<!-- ═══════════════ 食谱模块 ═══════════════ -->
+<!-- 食谱模块 -->
 <div id="mealSection">
   <div class="card mb-5">
     <div class="flex items-center justify-between mb-3">
@@ -259,7 +306,7 @@
   <div class="card mt-5" style="border-color:rgba(244,63,94,0.3);" id="daySummary"></div>
 </div>
 
-<!-- ═══════════════ 复盘模块 ═══════════════ -->
+<!-- 复盘模块 -->
 <div id="historySection">
   <div class="flex items-center justify-between mb-4">
     <h3 class="font-bold text-white text-lg">训练历史复盘</h3>
@@ -269,11 +316,7 @@
       <input type="file" id="importFile2" accept=".json" onchange="importData(this)" style="display:none;">
     </div>
   </div>
-
-  <!-- 周统计 -->
   <div class="card mb-4" id="weeklyStats"></div>
-
-  <!-- 历史列表 -->
   <div class="text-xs muted mb-2 flex items-center justify-between">
     <span id="historyCount">共 0 条记录</span>
     <button class="text-xs font-bold" style="color:var(--accent);background:none;border:none;cursor:pointer;"
@@ -282,7 +325,113 @@
   <div id="historyList" class="max-h-96 overflow-y-auto"></div>
 </div>
 
-<!-- REST TIMER OVERLAY -->
+</div><!-- /fitnessSection -->
+
+<!-- ═══════════════  QIQU SECTION ═══════════════ -->
+<div id="qiquSection" style="display:none;">
+
+  <div class="text-center mb-5">
+    <div class="text-xs text-[var(--muted)] uppercase tracking-wider mb-1">戒色七部曲日课</div>
+    <div class="text-2xl font-extrabold" id="qiquDateDisplay"></div>
+    <div class="text-sm text-[var(--muted)] mt-1" id="qiquWeekdayDisplay"></div>
+  </div>
+
+  <div class="text-center mb-4">
+    <span class="text-xs text-[var(--muted)]">别行版 · 持咒念佛</span>
+  </div>
+
+  <div class="flex gap-2 mb-5">
+    <button class="mode-tab-qiqu active" onclick="qiquSwitchMode('daily')">日课</button>
+    <button class="mode-tab-qiqu" onclick="qiquSwitchMode('history')">历史</button>
+    <button class="mode-tab-qiqu" onclick="qiquSwitchMode('export')">导出</button>
+  </div>
+
+  <div id="qiquDailySection">
+    <div class="mb-4">
+      <div class="flex justify-between items-end mb-2">
+        <span class="text-sm text-[var(--muted)]">今日进度</span>
+        <span class="text-sm font-bold" id="qiquProgressText">0/7</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="qiquProgressFill" style="width:0%"></div></div>
+    </div>
+
+    <div id="qiquStepsContainer"></div>
+
+    <div class="card">
+      <div class="text-xs text-[var(--muted)] uppercase tracking-wide mb-2">今日感言</div>
+      <textarea id="qiquOverallNote" rows="2" placeholder="今天的整体感受、收获或反思..."></textarea>
+    </div>
+
+    <button class="btn-accent w-full py-3 text-base" onclick="qiquSaveRecord()">保存今日日课</button>
+    <div class="text-center text-xs text-[var(--muted)] mt-2" id="qiquSaveHint">每天睡前填写，养成好习惯</div>
+  </div>
+
+  <div id="qiquHistorySection" style="display:none;">
+    <div class="grid grid-cols-4 gap-2 mb-4">
+      <div class="card text-center py-3">
+        <div class="stat-num" style="color:var(--accent)" id="qiquStatStreak">0</div>
+        <div class="stat-label">连续天数</div>
+      </div>
+      <div class="card text-center py-3">
+        <div class="stat-num" style="color:var(--accent2)" id="qiquStatTotal">0</div>
+        <div class="stat-label">累计天数</div>
+      </div>
+      <div class="card text-center py-3">
+        <div class="stat-num" style="color:var(--gold)" id="qiquStatWeek">0</div>
+        <div class="stat-label">本周</div>
+      </div>
+      <div class="card text-center py-3">
+        <div class="stat-num" style="color:var(--green)" id="qiquStatMonth">0</div>
+        <div class="stat-label">本月</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="flex items-center justify-between mb-3">
+        <button class="btn-ghost text-xs px-3 py-1" onclick="qiquPrevMonth()">← 上月</button>
+        <span class="font-bold text-sm" id="qiquCalTitle"></span>
+        <button class="btn-ghost text-xs px-3 py-1" onclick="qiquNextMonth()">下月 →</button>
+      </div>
+      <div class="grid grid-cols-7 gap-1 text-center text-xs text-[var(--muted)] mb-2">
+        <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+      </div>
+      <div class="grid grid-cols-7 gap-1" id="qiquCalGrid"></div>
+      <div class="text-xs text-[var(--muted)] mt-3 text-center" id="qiquSelectedDayInfo"></div>
+    </div>
+
+    <div class="mt-4">
+      <div class="text-xs text-[var(--muted)] uppercase tracking-wide mb-2">最近记录</div>
+      <div id="qiquRecentList"></div>
+    </div>
+  </div>
+
+  <div id="qiquExportSection" style="display:none;">
+    <div class="card">
+      <div class="text-sm font-bold mb-3">数据导出</div>
+      <p class="text-xs text-[var(--muted)] mb-4">将全部日课记录导出为文件，支持 Excel（推荐）和 JSON 格式。</p>
+      <button class="btn-accent w-full mb-3" onclick="qiquExportExcel()">导出 Excel (.xlsx)</button>
+      <button class="btn-ghost w-full" onclick="qiquExportJSON()">导出 JSON (.json)</button>
+    </div>
+
+    <div class="card mt-3">
+      <div class="text-sm font-bold mb-3">数据导入</div>
+      <p class="text-xs text-[var(--muted)] mb-4">导入之前导出的 JSON 文件，与现有记录合并（按日期去重）。</p>
+      <button class="btn-ghost w-full" onclick="document.getElementById('qiquImportFile').click()">导入 JSON 文件</button>
+      <input type="file" id="qiquImportFile" accept=".json" onchange="qiquImportJSON(this)">
+      <div class="text-xs text-[var(--muted)] mt-2 text-center" id="qiquImportResult"></div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="text-sm font-bold mb-3" style="color:var(--accent)">关于七部曲</div>
+      <p class="text-xs text-[var(--muted)] leading-relaxed">
+        戒色七部曲源自《走向光明》（日日知非著），是"系统戒色论"的实战方法体系。日课七条：早睡、健身、读书、持诵、行善、奋斗、反省。核心信念：彻底告别过去，活出全新生命。
+      </p>
+    </div>
+  </div>
+
+</div><!-- /qiquSection -->
+
+<!-- REST TIMER OVERLAY (fitness) -->
 <div id="timerOverlay" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center flex-col">
   <div class="text-7xl font-extrabold text-white mb-4 tabular-nums" id="timerDisplay">90</div>
   <div class="text-sm muted mb-8">组间休息</div>
@@ -290,12 +439,49 @@
   <button class="btn-accent text-lg px-10" onclick="skipTimer()">跳过</button>
 </div>
 
-<!-- 无额外弹窗——导出直接触发下载 -->
-
 <script>
-// ── 训练数据 ──
+// ═══════════════════════════════════════════════
+//  FIT DEFAULTS    → --accent: #f43f5e  --bg: #0a0a0f  --card: #14141f  --accent2: #f97316
+//  QIQU OVERRIDES  → --accent: #f59e0b  --bg: #0a0a0c  --card: #14141a  --accent2: #d4a574
+// ═══════════════════════════════════════════════
+const FIT_VARS = { '--bg':'#0a0a0f','--card':'#14141f','--card-hover':'#1a1a2a','--accent':'#f43f5e','--accent2':'#f97316' };
+const QIQU_VARS = { '--bg':'#0a0a0c','--card':'#14141a','--card-hover':'#1a1a24','--accent':'#f59e0b','--accent2':'#d4a574' };
+
+function applyTheme(vars) {
+  const root = document.documentElement;
+  Object.keys(vars).forEach(k => root.style.setProperty(k, vars[k]));
+}
+
+let currentTopTab = 'fitness';
+
+function switchTopTab(tab) {
+  currentTopTab = tab;
+  document.querySelectorAll('.top-tab').forEach(b => b.classList.remove('active'));
+  if (tab === 'fitness') {
+    document.getElementById('topTabFitness').classList.add('active');
+    document.getElementById('fitnessSection').style.display = 'block';
+    document.getElementById('qiquSection').style.display = 'none';
+    applyTheme(FIT_VARS);
+    renderVolumeRec();
+    updateStats();
+  } else {
+    document.getElementById('topTabQiqu').classList.add('active');
+    document.getElementById('fitnessSection').style.display = 'none';
+    document.getElementById('qiquSection').style.display = 'block';
+    applyTheme(QIQU_VARS);
+    qiquRenderDaily();
+    qiquUpdateProgressRing();
+  }
+}
+
+document.getElementById('topTabFitness').addEventListener('click', () => switchTopTab('fitness'));
+document.getElementById('topTabQiqu').addEventListener('click', () => switchTopTab('qiqu'));
+
+// ═══════════════════════════════════════════════
+//  FITNESS JS (原封不动)
+// ═══════════════════════════════════════════════
 const workoutDays = [
-  { // Day A — 推主导
+  {
     name: "Day A · 推主导", focus: "胸、肩、三头、腿",
     exercises: [
       { name:"器械坐姿推胸", muscle:"胸", alt:"哑铃平板卧推（轻重量，10-12 RM）", sets:3, reps:"10-12", weight:20, key:"chest_press",
@@ -310,7 +496,7 @@ const workoutDays = [
         tip:"挺胸沉肩，拉到锁骨位置，身体不要后仰太多", safety:"固定器械，新手安全练背首选", source:"NASM 推荐——引体向上对新手上肢力量要求过高" }
     ]
   },
-  { // Day B — 拉主导
+  {
     name: "Day B · 拉主导", focus: "背、二头、后链、肩后束",
     exercises: [
       { name:"坐姿绳索划船", muscle:"背", alt:"单臂哑铃划船（另一手扶凳）", sets:3, reps:"10-12", weight:20, key:"seated_row",
@@ -325,7 +511,7 @@ const workoutDays = [
         tip:"身体一条直线，臀不塌腰不弓，呼吸均匀", safety:"零关节压力核心训练", source:"NASM 核心稳定性模块推荐" }
     ]
   },
-  { // Day C — 腿+核心主导
+  {
     name: "Day C · 腿核心", focus: "腿、臀、核心、肩",
     exercises: [
       { name:"高脚杯深蹲", muscle:"腿", alt:"倒蹬机（腿举）", sets:3, reps:"10-12", weight:8, key:"goblet_squat",
@@ -348,7 +534,6 @@ let timerSeconds = 0;
 let data = {};
 let trainingHistory = [];
 
-// ── 初始化 ──
 function loadData() {
   const saved = localStorage.getItem('fitness_dashboard');
   if (saved) { try { data = JSON.parse(saved); } catch(e) { data = {}; } }
@@ -364,7 +549,6 @@ function loadData() {
 function saveData() { localStorage.setItem('fitness_dashboard', JSON.stringify(data)); }
 function saveHistory() { localStorage.setItem('fitness_history', JSON.stringify(trainingHistory)); }
 
-// ── 进度计算 ──
 function calcProgress() {
   const day = workoutDays[currentDay];
   let totalSets = 0, doneSets = 0, totalWt = 0;
@@ -378,27 +562,14 @@ function calcProgress() {
   return { totalSets, doneSets, totalWt, pct: totalSets ? Math.round(doneSets/totalSets*100) : 0 };
 }
 
-// ── 推荐运动量（基于 NASM + Starting Strength） ──
 function getVolumeRec() {
   const day = workoutDays[currentDay];
   const totalExercises = day.exercises.length;
   const totalSets = day.exercises.reduce((s,ex) => s + ex.sets, 0);
-
-  // 新手推荐: 每肌群每周 10-20 组, 每次训练 12-18 组
-  const minSets = 12;
-  const maxSets = 18;
-  const idealSets = totalSets; // 15，刚好在推荐范围中间
-
-  // RPE 推荐: 7-8 (留 2-3 次余力)
+  const minSets = 12, maxSets = 18, idealSets = totalSets;
   const rpeRec = "7-8（每组留 2-3 次余力，不做到力竭）";
-
-  // 容量负荷推荐（kg）: 新手阶段 2000-4000 kg/次
-  const minVol = 2000;
-  const maxVol = 4000;
-
-  // 渐进超负荷建议
+  const minVol = 2000, maxVol = 4000;
   const progression = "每周增加 2-5% 重量或 1-2 次，优先增加重量再增加次数";
-
   return { totalExercises, totalSets, minSets, maxSets, idealSets, rpeRec, minVol, maxVol, progression };
 }
 
@@ -406,41 +577,21 @@ function renderVolumeRec() {
   const p = calcProgress();
   const rec = getVolumeRec();
   const volPct = rec.maxVol > 0 ? Math.min(100, Math.round(p.totalWt / rec.maxVol * 100)) : 0;
-
-  // 判断状态
   let statusText, statusColor, statusIcon;
-  if (p.doneSets === 0) {
-    statusText = "等待开始";
-    statusColor = "#64748b";
-    statusIcon = "○";
-  } else if (p.pct < 33) {
-    statusText = "热身阶段";
-    statusColor = "#f97316";
-    statusIcon = "◐";
-  } else if (p.pct < 67) {
-    statusText = "训练中段";
-    statusColor = "#eab308";
-    statusIcon = "◑";
-  } else if (p.pct < 100) {
-    statusText = "接近完成";
-    statusColor = "#4ade80";
-    statusIcon = "●";
-  } else {
-    statusText = "已完成";
-    statusColor = "#22c55e";
-    statusIcon = "✓";
-  }
+  if (p.doneSets === 0) { statusText = "等待开始"; statusColor = "#64748b"; statusIcon = "○"; }
+  else if (p.pct < 33) { statusText = "热身阶段"; statusColor = "#f97316"; statusIcon = "◐"; }
+  else if (p.pct < 67) { statusText = "训练中段"; statusColor = "#eab308"; statusIcon = "◑"; }
+  else if (p.pct < 100) { statusText = "接近完成"; statusColor = "#4ade80"; statusIcon = "●"; }
+  else { statusText = "已完成"; statusColor = "#22c55e"; statusIcon = "✓"; }
   document.getElementById('volumeStatus').textContent = statusIcon + " " + statusText;
   document.getElementById('volumeStatus').style.color = statusColor;
 
   document.getElementById('volumeContent').innerHTML = `
     <div class="text-xs muted">组数目标 <span class="text-white font-bold">${rec.minSets}-${rec.maxSets}</span> 组/次 · 当前计划 <span class="text-green-400 font-bold">${rec.idealSets}</span> 组</div>
     <div class="volume-meter"><div class="volume-fill" style="width:${Math.min(100, p.doneSets/rec.maxSets*100)}%;background:${statusColor};"></div></div>
-
     <div class="text-xs muted mt-2">容量负荷目标 <span class="text-white font-bold">${rec.minVol}-${rec.maxVol}</span> kg/次</div>
     <div class="volume-meter"><div class="volume-fill" style="width:${volPct}%;background:#4ade80;"></div></div>
     <div class="flex justify-between text-xs mt-0.5"><span class="muted">当前 ${p.totalWt} kg</span><span class="muted">${volPct}%</span></div>
-
     <div class="grid grid-cols-2 gap-2 mt-3 text-xs">
       <div><span class="muted">RPE 推荐</span><br><span class="text-white font-bold">${rec.rpeRec}</span></div>
       <div><span class="muted">渐进策略</span><br><span class="text-white font-bold">${rec.progression}</span></div>
@@ -452,7 +603,6 @@ function renderVolumeRec() {
   `;
 }
 
-// ── 渲染训练列表 ──
 function renderExercises() {
   const container = document.getElementById('exerciseList');
   const day = workoutDays[currentDay];
@@ -498,7 +648,6 @@ function toggleSet(ei, si) {
   }
 }
 
-// ── 计时器 ──
 function startTimer() {
   timerSeconds = 90;
   document.getElementById('timerOverlay').classList.remove('hidden');
@@ -551,7 +700,6 @@ function resetAll() {
   saveData(); renderExercises();
 }
 
-// ── 完成训练 → 存入历史 ──
 function finishWorkout() {
   const p = calcProgress();
   if (p.pct < 50) {
@@ -561,30 +709,19 @@ function finishWorkout() {
   const now = new Date();
   const dateStr = now.toISOString().split('T')[0];
   const timeStr = now.toTimeString().split(' ')[0].substring(0,5);
-
-  // 构建记录
   const record = {
-    date: dateStr,
-    time: timeStr,
-    timestamp: now.toISOString(),
-    dayName: day.name,
-    dayIndex: currentDay,
+    date: dateStr, time: timeStr, timestamp: now.toISOString(),
+    dayName: day.name, dayIndex: currentDay,
     exercises: day.exercises.map((ex, ei) => {
       const k = `${currentDay}_${ei}`;
       const d = data[k];
       return { name: ex.name, muscle: ex.muscle, setsDone: d.setsDone, totalSets: ex.sets, weight: d.weight, reps: d.reps };
     }),
-    totalSetsDone: p.doneSets,
-    totalSets: p.totalSets,
-    totalVolume: p.totalWt,
-    pct: p.pct
+    totalSetsDone: p.doneSets, totalSets: p.totalSets, totalVolume: p.totalWt, pct: p.pct
   };
-
   trainingHistory.push(record);
   saveHistory();
   showToast('训练已存档！可在"复盘"查看');
-
-  // 重置今日数据，准备下次训练
   workoutDays[currentDay].exercises.forEach((ex, ei) => {
     const k = `${currentDay}_${ei}`;
     data[k].setsDone = 0; data[k].completed = false;
@@ -593,188 +730,103 @@ function finishWorkout() {
   renderExercises();
 }
 
-// ── 导出 Excel ──
 function exportExcel() {
-  // SheetJS 不可用时降级
-  if (typeof XLSX === 'undefined') {
-    exportCSV();
-    return;
-  }
-
+  if (typeof XLSX === 'undefined') { exportCSV(); return; }
   const wb = XLSX.utils.book_new();
   const summary = generateSummary();
-
-  // ── Sheet 1: 训练历史明细 ──
   const historyRows = [['日期', '时间', '训练日', '动作', '肌群', '完成组数', '总组数', '重量(kg)', '每组次数', '容量小计(kg)', '完成率']];
   trainingHistory.forEach(rec => {
-    const dateStr = rec.date || '';
-    const timeStr = rec.time || '';
-    const dayName = rec.dayName || '';
+    const dateStr = rec.date || '', timeStr = rec.time || '', dayName = rec.dayName || '';
     (rec.exercises || []).forEach(ex => {
       const volSubtotal = (ex.setsDone || 0) * (ex.weight || 0) * (parseInt(ex.reps) || 0);
-      historyRows.push([
-        dateStr, timeStr, dayName,
-        ex.name || '', ex.muscle || '',
-        ex.setsDone || 0, ex.totalSets || 0,
-        ex.weight || 0, ex.reps || '',
-        volSubtotal,
-        ex.totalSets > 0 ? Math.round(ex.setsDone / ex.totalSets * 100) + '%' : '0%'
-      ]);
+      historyRows.push([dateStr, timeStr, dayName, ex.name || '', ex.muscle || '', ex.setsDone || 0, ex.totalSets || 0, ex.weight || 0, ex.reps || '', volSubtotal, ex.totalSets > 0 ? Math.round(ex.setsDone / ex.totalSets * 100) + '%' : '0%']);
     });
     historyRows.push(['', '', '', '', '', '', '', '', '', '', '']);
   });
-
   const ws1 = XLSX.utils.aoa_to_sheet(historyRows);
-  ws1['!cols'] = [
-    {wch:12},{wch:8},{wch:18},
-    {wch:22},{wch:8},{wch:10},{wch:10},{wch:10},{wch:10},{wch:14},{wch:10}
-  ];
+  ws1['!cols'] = [{wch:12},{wch:8},{wch:18},{wch:22},{wch:8},{wch:10},{wch:10},{wch:10},{wch:10},{wch:14},{wch:10}];
   XLSX.utils.book_append_sheet(wb, ws1, '训练历史');
-
-  // ── Sheet 2: 每日汇总 ──
   const dailyRows = [['日期', '训练日', '完成组数', '总组数', '总容量(kg)', '完成率']];
-  trainingHistory.forEach(rec => {
-    dailyRows.push([rec.date || '', rec.dayName || '', rec.totalSetsDone || 0, rec.totalSets || 0, rec.totalVolume || 0, (rec.pct || 0) + '%']);
-  });
+  trainingHistory.forEach(rec => { dailyRows.push([rec.date || '', rec.dayName || '', rec.totalSetsDone || 0, rec.totalSets || 0, rec.totalVolume || 0, (rec.pct || 0) + '%']); });
   const ws2 = XLSX.utils.aoa_to_sheet(dailyRows);
   ws2['!cols'] = [{wch:12},{wch:18},{wch:10},{wch:10},{wch:14},{wch:10}];
   XLSX.utils.book_append_sheet(wb, ws2, '每日汇总');
-
-  // ── Sheet 3: 统计概览 ──
   const statsRows = [
-    ['指标', '数值'],
-    ['总训练次数', summary.totalSessions],
-    ['本周次数', summary.weekSessions],
-    ['本月次数', summary.monthSessions],
-    ['平均完成率', summary.avgCompletionPct + '%'],
-    ['近期5次均容量(kg)', summary.recent5AvgVolume],
-    ['更早5次均容量(kg)', summary.older5AvgVolume],
-    ['容量趋势', summary.volumeTrend],
-    ['累计总容量(kg)', summary.totalVolumeAllTime],
-    ['导出时间', new Date().toLocaleString('zh-CN')]
+    ['指标', '数值'], ['总训练次数', summary.totalSessions], ['本周次数', summary.weekSessions], ['本月次数', summary.monthSessions],
+    ['平均完成率', summary.avgCompletionPct + '%'], ['近期5次均容量(kg)', summary.recent5AvgVolume],
+    ['更早5次均容量(kg)', summary.older5AvgVolume], ['容量趋势', summary.volumeTrend],
+    ['累计总容量(kg)', summary.totalVolumeAllTime], ['导出时间', new Date().toLocaleString('zh-CN')]
   ];
-  const ws3 = XLSX.utils.aoa_to_sheet(statsRows);
-  ws3['!cols'] = [{wch:22},{wch:20}];
+  const ws3 = XLSX.utils.aoa_to_sheet(statsRows); ws3['!cols'] = [{wch:22},{wch:20}];
   XLSX.utils.book_append_sheet(wb, ws3, '统计概览');
-
-  // ── Sheet 4: 7天食谱 ──
   const mealRows = [['日期', '类型', '餐次', '食物项', '备注', '热量', '蛋白质']];
-  weeklyMeals.forEach(d => {
-    d.meals.forEach(m => {
-      const timeName = m.time;
-      m.items.forEach(item => {
-        mealRows.push([d.label, d.type === 'train' ? '训练日' : '休息日', timeName, item.txt, item.note, '', '']);
-      });
-      mealRows.push([d.label, '', '', '', '', m.kcal || '', m.pro || '']);
-    });
-  });
-  const ws4 = XLSX.utils.aoa_to_sheet(mealRows);
-  ws4['!cols'] = [{wch:8},{wch:8},{wch:20},{wch:35},{wch:25},{wch:10},{wch:10}];
+  weeklyMeals.forEach(d => { d.meals.forEach(m => { const timeName = m.time; m.items.forEach(item => { mealRows.push([d.label, d.type === 'train' ? '训练日' : '休息日', timeName, item.txt, item.note, '', '']); }); mealRows.push([d.label, '', '', '', '', m.kcal || '', m.pro || '']); }); });
+  const ws4 = XLSX.utils.aoa_to_sheet(mealRows); ws4['!cols'] = [{wch:8},{wch:8},{wch:20},{wch:35},{wch:25},{wch:10},{wch:10}];
   XLSX.utils.book_append_sheet(wb, ws4, '7天食谱');
-
-  // 下载
   const filename = `健身数据-${new Date().toISOString().split('T')[0]}.xlsx`;
   XLSX.writeFile(wb, filename);
   showToast('Excel 已导出（4 个工作表）！');
 }
 
-// ── CSV 降级（SheetJS 不可用时） ──
 function exportCSV() {
   const exportObj = { exportDate: new Date().toISOString(), version: "2.0", currentData: data, history: trainingHistory, summary: generateSummary() };
   const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `健身数据-${new Date().toISOString().split('T')[0]}.json`;
-  a.click();
+  const a = document.createElement('a'); a.href = url; a.download = `健身数据-${new Date().toISOString().split('T')[0]}.json`; a.click();
   URL.revokeObjectURL(url);
   showToast('SheetJS 未加载，已降级导出 JSON');
 }
 
-// ── 导入数据 ──
 function importData(input) {
-  const file = input.files[0];
-  if (!file) return;
+  const file = input.files[0]; if (!file) return;
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
       const imported = JSON.parse(e.target.result);
-      if (!imported.history || !Array.isArray(imported.history)) {
-        alert('文件格式不正确，缺少 history 字段'); return;
-      }
+      if (!imported.history || !Array.isArray(imported.history)) { alert('文件格式不正确，缺少 history 字段'); return; }
       if (!confirm(`即将导入 ${imported.history.length} 条训练记录。\n现有 ${trainingHistory.length} 条记录将被合并（相同时间戳不会重复）。\n继续？`)) return;
-
-      // 合并历史（按时间戳去重）
       const existingTimestamps = new Set(trainingHistory.map(r => r.timestamp));
       const newRecords = imported.history.filter(r => !existingTimestamps.has(r.timestamp));
       trainingHistory = trainingHistory.concat(newRecords);
       trainingHistory.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
       saveHistory();
-
-      // 可选：恢复当前训练数据
-      if (imported.currentData && confirm('是否同时恢复上次训练进度？')) {
-        data = imported.currentData;
-        saveData();
-        renderExercises();
-      }
-
+      if (imported.currentData && confirm('是否同时恢复上次训练进度？')) { data = imported.currentData; saveData(); renderExercises(); }
       showToast(`成功导入 ${newRecords.length} 条新记录！`);
       renderHistory();
       if (input) input.value = '';
-    } catch(err) {
-      alert('导入失败：' + err.message);
-    }
+    } catch(err) { alert('导入失败：' + err.message); }
   };
   reader.readAsText(file);
 }
 
-// ── 生成周/月汇总 ──
 function generateSummary() {
   const now = new Date();
   const weekAgo = new Date(now - 7*86400000).toISOString();
   const monthAgo = new Date(now - 30*86400000).toISOString();
-
   const weekRecords = trainingHistory.filter(r => r.timestamp >= weekAgo);
   const monthRecords = trainingHistory.filter(r => r.timestamp >= monthAgo);
-
-  const totalSessions = trainingHistory.length;
-  const weekSessions = weekRecords.length;
-  const monthSessions = monthRecords.length;
-
-  // 计算每周平均容量
+  const totalSessions = trainingHistory.length, weekSessions = weekRecords.length, monthSessions = monthRecords.length;
   const monthVolume = monthRecords.reduce((s,r) => s + (r.totalVolume||0), 0);
   const avgVolume = monthSessions > 0 ? Math.round(monthVolume / (monthSessions/7)) : 0;
-
-  // 完成率
-  const avgPct = trainingHistory.length > 0
-    ? Math.round(trainingHistory.reduce((s,r) => s + (r.pct||0), 0) / trainingHistory.length) : 0;
-
-  // 容量趋势（最近 5 次 vs 前 5 次）
-  const recent5 = trainingHistory.slice(0,5);
-  const older5 = trainingHistory.slice(5,10);
+  const avgPct = trainingHistory.length > 0 ? Math.round(trainingHistory.reduce((s,r) => s + (r.pct||0), 0) / trainingHistory.length) : 0;
+  const recent5 = trainingHistory.slice(0,5), older5 = trainingHistory.slice(5,10);
   const recent5Vol = recent5.reduce((s,r) => s + (r.totalVolume||0), 0) / Math.max(1, recent5.length);
   const older5Vol = older5.reduce((s,r) => s + (r.totalVolume||0), 0) / Math.max(1, older5.length);
   const trend = older5Vol > 0 ? Math.round((recent5Vol - older5Vol) / older5Vol * 100) : 0;
-
   return {
-    totalSessions, weekSessions, monthSessions,
-    avgCompletionPct: avgPct,
-    avgWeeklyVolume: avgVolume,
-    recent5AvgVolume: Math.round(recent5Vol),
-    older5AvgVolume: Math.round(older5Vol),
+    totalSessions, weekSessions, monthSessions, avgCompletionPct: avgPct, avgWeeklyVolume: avgVolume,
+    recent5AvgVolume: Math.round(recent5Vol), older5AvgVolume: Math.round(older5Vol),
     volumeTrend: trend > 0 ? `上升 +${trend}%` : trend < 0 ? `下降 ${trend}%` : '持平',
     totalVolumeAllTime: trainingHistory.reduce((s,r) => s + (r.totalVolume||0), 0)
   };
 }
 
-// ── 渲染复盘 ──
 function renderHistory() {
   const summary = generateSummary();
   const now = new Date();
   const weekAgo = new Date(now - 7*86400000);
   const weekRecords = trainingHistory.filter(r => r.timestamp >= weekAgo.toISOString());
-  const weekTarget = 3; // 每周目标 3 次
-
-  // 周统计卡片
+  const weekTarget = 3;
   document.getElementById('weeklyStats').innerHTML = `
     <div class="text-sm font-bold text-white mb-3">本周概览 (${weekAgo.toLocaleDateString('zh-CN')} - 至今)</div>
     <div class="grid grid-cols-4 gap-2 text-center mb-3">
@@ -791,8 +843,6 @@ function renderHistory() {
     </div>
     ${weekRecords.length < weekTarget ? `<div class="text-xs mt-2 pt-2 border-t border-[#1e293b] text-amber-400">本周还有 ${weekTarget-weekRecords.length} 次待完成，加油！</div>` : `<div class="text-xs mt-2 pt-2 border-t border-[#1e293b] text-green-400">本周目标已达成！超额完成更棒。</div>`}
   `;
-
-  // 历史列表
   document.getElementById('historyCount').textContent = `共 ${trainingHistory.length} 条记录`;
   let listHTML = '';
   if (trainingHistory.length === 0) {
@@ -804,14 +854,12 @@ function renderHistory() {
       const pctColor = rec.pct >= 100 ? '#22c55e' : rec.pct >= 60 ? '#eab308' : '#f43f5e';
       listHTML += `<div class="history-item" onclick="showHistoryDetail(${idx})">`;
       listHTML += `<div class="flex justify-between items-center">`;
-      listHTML += `<div><span class="text-sm font-bold text-white">${rec.dayName}</span>`;
-      listHTML += `<span class="text-xs muted ml-2">${rec.date} 周${dayOfWeek} ${rec.time||''}</span></div>`;
+      listHTML += `<div><span class="text-sm font-bold text-white">${rec.dayName}</span><span class="text-xs muted ml-2">${rec.date} 周${dayOfWeek} ${rec.time||''}</span></div>`;
       listHTML += `<div class="flex items-center gap-2">`;
       listHTML += `<span class="text-xs font-bold" style="color:${pctColor}">${rec.pct}%</span>`;
       listHTML += `<span class="text-xs muted">${rec.totalSetsDone}/${rec.totalSets}组</span>`;
       listHTML += `<span class="text-xs text-orange-400">${rec.totalVolume||0}kg</span>`;
       listHTML += `</div></div>`;
-      // 展开详情
       listHTML += `<div class="mt-2 text-xs muted" style="display:none;" id="histDetail${idx}">`;
       if (rec.exercises) {
         rec.exercises.forEach(ex => {
@@ -819,13 +867,10 @@ function renderHistory() {
           listHTML += `<div class="flex justify-between py-0.5"><span>${done?'✅':'⬜'} ${ex.name} (${ex.muscle})</span><span>${ex.setsDone}/${ex.totalSets}组 ${ex.weight}kg/${ex.reps}次</span></div>`;
         });
       }
-      listHTML += `</div>`;
-      listHTML += `</div>`;
+      listHTML += `</div></div>`;
     });
   }
   document.getElementById('historyList').innerHTML = listHTML;
-
-  // 更新周目标进度环
   const weekPct = Math.min(100, Math.round(weekRecords.length / weekTarget * 100));
   const progressCircle = document.getElementById('progressCircle');
   progressCircle.style.strokeDashoffset = 213.63 * (1 - weekPct/100);
@@ -840,13 +885,10 @@ function showHistoryDetail(idx) {
 
 function clearHistory() {
   if (!confirm('确定要清空所有历史记录吗？此操作不可恢复。\n建议先导出备份。')) return;
-  trainingHistory = [];
-  saveHistory();
-  renderHistory();
+  trainingHistory = []; saveHistory(); renderHistory();
   showToast('历史记录已清空');
 }
 
-// ── 日切换 ──
 document.querySelectorAll('.day-tab').forEach(btn => {
   btn.addEventListener('click', function() {
     document.querySelectorAll('.day-tab').forEach(b => b.classList.remove('active'));
@@ -856,7 +898,6 @@ document.querySelectorAll('.day-tab').forEach(btn => {
   });
 });
 
-// ── 模式切换 ──
 let currentMode = 'workout';
 let currentMealDay = 0;
 
@@ -875,14 +916,9 @@ function switchMode(mode) {
   document.getElementById('historySection').style.display = mode === 'history' ? 'block' : 'none';
   if (mode === 'meal') renderMealDay();
   if (mode === 'history') renderHistory();
-  if (mode === 'workout') {
-    // 回到训练页时显示当天进度
-    renderVolumeRec();
-    updateStats();
-  }
+  if (mode === 'workout') { renderVolumeRec(); updateStats(); }
 }
 
-// ── 7 天食谱数据 ──
 const weeklyMeals = [
   { label: "周一", type: "train", kcal: 2100, carb: 235, fat: 58, hand: { pro: 4, carb: 4, fat: 3 },
     meals: [
@@ -944,10 +980,8 @@ function renderMealDay() {
   document.getElementById('mealTitle').textContent = d.label + ' · ' + (isTrain ? '训练日' : '休息日');
   const badge = document.getElementById('mealBadge');
   badge.textContent = isTrain ? '训练日' : '休息日';
-  badge.style.background = isTrain ? 'var(--accent)' : '#0f3460';
-  badge.style.color = '#fff';
+  badge.style.background = isTrain ? 'var(--accent)' : '#0f3460'; badge.style.color = '#fff';
   document.getElementById('mealKcal').textContent = d.kcal;
-
   const proPct = Math.round(140*4/d.kcal*100);
   const carbPct = Math.round(d.carb*4/d.kcal*100);
   const fatPct = Math.round(d.fat*9/d.kcal*100);
@@ -986,18 +1020,384 @@ function renderMealDay() {
 function renderDaySelector() {
   let html = '';
   weeklyMeals.forEach((d,i) => {
-    const active = i === currentMealDay;
-    const isTrain = d.type === 'train';
+    const active = i === currentMealDay, isTrain = d.type === 'train';
     html += `<button class="day-tab${active?' active':''}" style="${active?'':'border-color:'+(isTrain?'rgba(244,63,94,0.3)':'rgba(15,52,96,0.5)')+';'}"
               onclick="currentMealDay=${i};renderMealDay();">${d.label}<br><span class="text-xs" style="color:${isTrain?'var(--accent)':'#3b82f6'}">${isTrain?'训练':'休息'}</span></button>`;
   });
   document.getElementById('daySelector').innerHTML = html;
 }
 
-// ── 全局初始化 ──
-loadData();
-renderExercises();
-renderDaySelector();
+// ═══════════════════════════════════════════════
+//  QIQU JS (全部函数加 qiqu_ 前缀)
+// ═══════════════════════════════════════════════
+const qiquStepsBase = [
+  { id: 'zaoShui',  name: '早睡',   icon: '🌙', desc: '晚10:00前睡觉，早5-6点起床',           hint: '几点睡的？' },
+  { id: 'jianShen', name: '健身',   icon: '🏃', desc: '早起锻炼至少半小时',                   hint: '做了什么运动？多久？' },
+  { id: 'duShu',    name: '读书',   icon: '📖', desc: '阅读戒色修身好文好书',                 hint: '读了什么？多久？' },
+  { id: 'chiSong',  name: '持诵',   icon: '📿', desc: '念诵观音圣号2000-5000遍或准提咒600-2000遍', hint: '念了多少？' },
+  { id: 'xingShan', name: '行善',   icon: '❤️', desc: '日行一善，孝养父母',                   hint: '做了什么善事？' },
+  { id: 'fenDou',   name: '奋斗',   icon: '🎯', desc: '为人生理想努力奋斗',                   hint: '今天为理想做了什么？' },
+  { id: 'fanXing',  name: '反省',   icon: '📝', desc: '写日课总结日记，反省修身',              hint: '今天的反思？' },
+];
+
+let qiquToday = new Date().toISOString().split('T')[0];
+let qiquCurrentSteps = {};
+let qiquOverallNote = '';
+let qiquHistory = [];
+let qiquCalendarYear, qiquCalendarMonth;
+let qiquSelectedCalDate = null;
+
+function qiquInitSteps() {
+  const defaults = {};
+  qiquStepsBase.forEach(s => { defaults[s.id] = { done: false, note: '' }; });
+  return defaults;
+}
+
+function qiquLoadData() {
+  const saved = localStorage.getItem('qiqu_dashboard');
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed.date === qiquToday) { qiquCurrentSteps = parsed.steps; qiquOverallNote = parsed.overallNote || ''; }
+      else { qiquCurrentSteps = qiquInitSteps(); qiquOverallNote = ''; }
+    } catch(e) { qiquCurrentSteps = qiquInitSteps(); }
+  } else { qiquCurrentSteps = qiquInitSteps(); }
+
+  const hist = localStorage.getItem('qiqu_history');
+  if (hist) { try { qiquHistory = JSON.parse(hist); } catch(e) { qiquHistory = []; } }
+
+  const now = new Date();
+  qiquCalendarYear = now.getFullYear();
+  qiquCalendarMonth = now.getMonth() + 1;
+}
+
+function qiquSaveDashboard() {
+  localStorage.setItem('qiqu_dashboard', JSON.stringify({ date: qiquToday, steps: qiquCurrentSteps, overallNote: qiquOverallNote }));
+}
+function qiquSaveHistory() { localStorage.setItem('qiqu_history', JSON.stringify(qiquHistory)); }
+
+function qiquEscapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function qiquGetSteps() { return qiquStepsBase; }
+
+function qiquToggleStep(stepId) {
+  qiquCurrentSteps[stepId].done = !qiquCurrentSteps[stepId].done;
+  qiquUpdateProgress();
+  qiquRenderStepCard(stepId);
+}
+
+function qiquUpdateStepNote(stepId, value) { qiquCurrentSteps[stepId].note = value; }
+
+function qiquUpdateProgress() {
+  const done = qiquStepsBase.filter(s => qiquCurrentSteps[s.id].done).length;
+  const pct = Math.round(done / 7 * 100);
+  document.getElementById('qiquProgressText').textContent = `${done}/7`;
+  document.getElementById('qiquProgressFill').style.width = pct + '%';
+  qiquUpdateProgressRing();
+}
+
+function qiquUpdateProgressRing() {
+  const done = qiquStepsBase.filter(s => qiquCurrentSteps[s.id].done).length;
+  const pct = Math.round(done / 7 * 100);
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressCircle').style.strokeDashoffset = 213.63 * (1 - pct/100);
+}
+
+function qiquRenderStepCard(stepId) {
+  const step = qiquStepsBase.find(s => s.id === stepId);
+  const idx = qiquStepsBase.findIndex(s => s.id === stepId);
+  const cs = qiquCurrentSteps[stepId];
+  const card = document.getElementById(`qiquStepCard-${stepId}`);
+  if (!card) return;
+  card.className = 'card' + (cs.done ? ' done' : '');
+  card.querySelector('.step-toggle').className = 'step-toggle' + (cs.done ? ' done' : '');
+  card.querySelector('.step-toggle').textContent = cs.done ? '✓' : (idx + 1);
+}
+
+function qiquRenderDaily() {
+  const d = new Date(qiquToday + 'T00:00:00');
+  const weekdays = ['日','一','二','三','四','五','六'];
+  document.getElementById('qiquDateDisplay').textContent = qiquToday;
+  document.getElementById('qiquWeekdayDisplay').textContent = `星期${weekdays[d.getDay()]}`;
+
+  let html = '';
+  qiquStepsBase.forEach((step, i) => {
+    const cs = qiquCurrentSteps[step.id];
+    html += `
+    <div class="card${cs.done ? ' done' : ''}" id="qiquStepCard-${step.id}">
+      <div class="flex items-center gap-3">
+        <div class="step-toggle${cs.done ? ' done' : ''}" onclick="qiquToggleStep('${step.id}')">${cs.done ? '✓' : (i + 1)}</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="text-base">${step.icon}</span>
+            <span class="font-bold text-sm">${step.name}</span>
+          </div>
+          <div class="text-xs text-[var(--muted)] mt-0.5">${step.desc}</div>
+          <input type="text" class="mt-2 text-xs" placeholder="${step.hint}" value="${qiquEscapeHtml(cs.note || '')}"
+            oninput="qiquUpdateStepNote('${step.id}', this.value)" onchange="qiquUpdateStepNote('${step.id}', this.value)">
+        </div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('qiquStepsContainer').innerHTML = html;
+  document.getElementById('qiquOverallNote').value = qiquOverallNote;
+  qiquUpdateProgress();
+}
+
+function qiquSaveRecord() {
+  const done = qiquStepsBase.filter(s => qiquCurrentSteps[s.id].done).length;
+  qiquOverallNote = document.getElementById('qiquOverallNote').value;
+  if (done === 0) { showToast('请至少完成一条再保存'); return; }
+  const record = {
+    date: qiquToday, timestamp: new Date().toISOString(),
+    steps: JSON.parse(JSON.stringify(qiquCurrentSteps)),
+    completedCount: done, overallNote: qiquOverallNote
+  };
+  const existingIdx = qiquHistory.findIndex(r => r.date === qiquToday);
+  if (existingIdx >= 0) { qiquHistory[existingIdx] = record; }
+  else { qiquHistory.push(record); }
+  qiquHistory.sort((a, b) => b.date.localeCompare(a.date));
+  qiquSaveDashboard(); qiquSaveHistory();
+  showToast(`已保存 · 完成 ${done}/7 条`);
+  const now = new Date();
+  document.getElementById('qiquSaveHint').textContent = `上次保存：${now.toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'})}`;
+}
+
+function qiquGetRecordByDate(dateStr) { return qiquHistory.find(r => r.date === dateStr); }
+
+function qiquComputeStats() {
+  if (!qiquHistory.length) return { streak: 0, total: 0, week: 0, month: 0, longest: 0 };
+  const total = qiquHistory.length;
+  let streak = 0;
+  const d = new Date(qiquToday + 'T00:00:00');
+  while (true) {
+    const ds = d.toISOString().split('T')[0];
+    const rec = qiquHistory.find(r => r.date === ds);
+    if (rec && rec.completedCount >= 1) { streak++; d.setDate(d.getDate() - 1); }
+    else break;
+  }
+  const dates = new Set(qiquHistory.filter(r => r.completedCount >= 1).map(r => r.date));
+  let longest = 0;
+  if (dates.size > 0) {
+    const sorted = [...dates].sort();
+    let run = 1;
+    for (let i = 1; i < sorted.length; i++) {
+      const prev = new Date(sorted[i-1] + 'T00:00:00');
+      const curr = new Date(sorted[i] + 'T00:00:00');
+      if ((curr - prev) === 86400000) { run++; }
+      else { longest = Math.max(longest, run); run = 1; }
+    }
+    longest = Math.max(longest, run);
+  }
+  const now = new Date(qiquToday + 'T00:00:00');
+  const dayOfWeek = now.getDay();
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const monday = new Date(now); monday.setDate(now.getDate() + mondayOffset);
+  let week = 0;
+  for (let i = 0; i < 7; i++) {
+    const ds = new Date(monday); ds.setDate(monday.getDate() + i);
+    const dsStr = ds.toISOString().split('T')[0];
+    if (qiquHistory.find(r => r.date === dsStr && r.completedCount >= 1)) week++;
+  }
+  const month = qiquHistory.filter(r => {
+    const rd = new Date(r.date + 'T00:00:00');
+    return rd.getFullYear() === now.getFullYear() && rd.getMonth() === now.getMonth() && r.completedCount >= 1;
+  }).length;
+  return { streak, total, week, month, longest };
+}
+
+function qiquRenderCalendar() {
+  const year = qiquCalendarYear, month = qiquCalendarMonth;
+  document.getElementById('qiquCalTitle').textContent = `${year}年 ${month}月`;
+  const firstDay = new Date(year, month - 1, 1);
+  const lastDay = new Date(year, month, 0);
+  const daysInMonth = lastDay.getDate();
+  const startDow = firstDay.getDay();
+  let html = '';
+  for (let i = 0; i < startDow; i++) { html += '<div></div>'; }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const rec = qiquHistory.find(r => r.date === ds);
+    let cls = 'cal-cell ';
+    if (ds === qiquToday) cls += 'today ';
+    if (rec) {
+      if (rec.completedCount >= 6) cls += 'high';
+      else if (rec.completedCount >= 3) cls += 'mid';
+      else cls += 'low';
+    } else { cls += 'none'; }
+    if (ds === qiquSelectedCalDate) cls += ' today';
+    html += `<div class="${cls}" onclick="qiquSelectCalDate('${ds}')">${d}</div>`;
+  }
+  document.getElementById('qiquCalGrid').innerHTML = html;
+  if (qiquSelectedCalDate) { qiquShowCalDateInfo(qiquSelectedCalDate); }
+  else { document.getElementById('qiquSelectedDayInfo').textContent = '点击日期查看详情'; }
+}
+
+function qiquSelectCalDate(ds) {
+  qiquSelectedCalDate = ds;
+  qiquRenderCalendar();
+  qiquShowCalDateInfo(ds);
+}
+
+function qiquShowCalDateInfo(ds) {
+  const rec = qiquHistory.find(r => r.date === ds);
+  if (!rec) { document.getElementById('qiquSelectedDayInfo').textContent = `${ds} — 无记录`; return; }
+  const steps = qiquGetSteps();
+  const doneNames = steps.filter(s => rec.steps[s.id] && rec.steps[s.id].done).map(s => s.name);
+  document.getElementById('qiquSelectedDayInfo').innerHTML = `${ds} · 完成 ${rec.completedCount}/7<br><span class="text-xs">${doneNames.join('、') || '无'}</span>`;
+}
+
+function qiquPrevMonth() {
+  if (qiquCalendarMonth === 1) { qiquCalendarMonth = 12; qiquCalendarYear--; }
+  else qiquCalendarMonth--;
+  qiquSelectedCalDate = null;
+  qiquRenderCalendar();
+}
+
+function qiquNextMonth() {
+  if (qiquCalendarMonth === 12) { qiquCalendarMonth = 1; qiquCalendarYear++; }
+  else qiquCalendarMonth++;
+  qiquSelectedCalDate = null;
+  qiquRenderCalendar();
+}
+
+function qiquRenderRecentList() {
+  if (qiquHistory.length === 0) {
+    document.getElementById('qiquRecentList').innerHTML = '<div class="text-xs text-[var(--muted)] text-center py-4">暂无记录</div>';
+    return;
+  }
+  const steps = qiquGetSteps();
+  const recent = qiquHistory.slice(0, 30);
+  let html = '';
+  recent.forEach(r => {
+    const doneNames = steps.filter(s => r.steps[s.id] && r.steps[s.id].done).map(s => s.name);
+    const d = new Date(r.date + 'T00:00:00');
+    const weekdays = ['日','一','二','三','四','五','六'];
+    html += `
+    <div class="card py-2 px-3 cursor-pointer" onclick="qiquSelectCalDate('${r.date}'); qiquSwitchMode('history'); qiquRenderCalendar();">
+      <div class="flex justify-between items-center">
+        <div><span class="text-sm font-bold">${r.date}</span><span class="text-xs text-[var(--muted)] ml-2">周${weekdays[d.getDay()]}</span></div>
+        <span class="text-sm font-bold ${r.completedCount >= 6 ? 'text-[var(--green)]' : ''}" style="color:${r.completedCount >= 6 ? 'var(--green)' : 'var(--accent)'}">${r.completedCount}/7</span>
+      </div>
+      ${doneNames.length ? `<div class="text-xs text-[var(--muted)] mt-1">${doneNames.join('、')}</div>` : ''}
+      ${r.overallNote ? `<div class="text-xs text-[var(--muted)] mt-1 italic">${qiquEscapeHtml(r.overallNote.substring(0, 60))}${r.overallNote.length > 60 ? '...' : ''}</div>` : ''}
+    </div>`;
+  });
+  document.getElementById('qiquRecentList').innerHTML = html;
+}
+
+function qiquRenderHistory() {
+  const stats = qiquComputeStats();
+  document.getElementById('qiquStatStreak').textContent = stats.streak;
+  document.getElementById('qiquStatTotal').textContent = stats.total;
+  document.getElementById('qiquStatWeek').textContent = stats.week;
+  document.getElementById('qiquStatMonth').textContent = stats.month;
+  qiquRenderCalendar();
+  qiquRenderRecentList();
+}
+
+function qiquSwitchMode(mode) {
+  document.querySelectorAll('.mode-tab-qiqu').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.mode-tab-qiqu').forEach(b => {
+    if ((mode === 'daily' && b.textContent === '日课') ||
+        (mode === 'history' && b.textContent === '历史') ||
+        (mode === 'export' && b.textContent === '导出')) { b.classList.add('active'); }
+  });
+  document.getElementById('qiquDailySection').style.display = mode === 'daily' ? 'block' : 'none';
+  document.getElementById('qiquHistorySection').style.display = mode === 'history' ? 'block' : 'none';
+  document.getElementById('qiquExportSection').style.display = mode === 'export' ? 'block' : 'none';
+  if (mode === 'history') qiquRenderHistory();
+  if (mode === 'daily') qiquRenderDaily();
+}
+
+function qiquExportExcel() {
+  if (typeof XLSX === 'undefined') { qiquExportJSON(); return; }
+  const wb = XLSX.utils.book_new();
+  const steps = qiquGetSteps();
+  const detailRows = [['日期', '早睡', '健身', '读书', '持诵', '行善', '奋斗', '反省', '完成数', '早睡备注', '健身备注', '读书备注', '持诵备注', '行善备注', '奋斗备注', '反省备注', '总体感言']];
+  qiquHistory.forEach(r => {
+    const row = [
+      r.date,
+      r.steps.zaoShui?.done ? '✓' : '✗', r.steps.jianShen?.done ? '✓' : '✗', r.steps.duShu?.done ? '✓' : '✗',
+      r.steps.chiSong?.done ? '✓' : '✗', r.steps.xingShan?.done ? '✓' : '✗', r.steps.fenDou?.done ? '✓' : '✗',
+      r.steps.fanXing?.done ? '✓' : '✗', r.completedCount,
+      r.steps.zaoShui?.note || '', r.steps.jianShen?.note || '', r.steps.duShu?.note || '',
+      r.steps.chiSong?.note || '', r.steps.xingShan?.note || '', r.steps.fenDou?.note || '',
+      r.steps.fanXing?.note || '', r.overallNote || ''
+    ];
+    detailRows.push(row);
+  });
+  const ws1 = XLSX.utils.aoa_to_sheet(detailRows);
+  ws1['!cols'] = [{wch:12},{wch:6},{wch:6},{wch:6},{wch:6},{wch:6},{wch:6},{wch:6},{wch:6},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:20}];
+  XLSX.utils.book_append_sheet(wb, ws1, '日课明细');
+
+  const summaryRows = [['日期', '完成数', '完成率']];
+  qiquHistory.forEach(r => { summaryRows.push([r.date, r.completedCount, Math.round(r.completedCount/7*100) + '%']); });
+  const ws2 = XLSX.utils.aoa_to_sheet(summaryRows); ws2['!cols'] = [{wch:12},{wch:8},{wch:8}];
+  XLSX.utils.book_append_sheet(wb, ws2, '每日汇总');
+
+  const stats = qiquComputeStats();
+  const statRows = [
+    ['指标', '数值'], ['总记录天数', stats.total], ['当前连续天数', stats.streak],
+    ['最长连续天数', stats.longest], ['本周完成天数', stats.week], ['本月完成天数', stats.month],
+    ['导出时间', new Date().toLocaleString('zh-CN')],
+  ];
+  const ws3 = XLSX.utils.aoa_to_sheet(statRows); ws3['!cols'] = [{wch:16},{wch:12}];
+  XLSX.utils.book_append_sheet(wb, ws3, '统计概览');
+
+  const itemRows = [['条目', '总完成次数', '总记录天数', '完成率']];
+  steps.forEach(s => {
+    const done = qiquHistory.filter(r => r.steps[s.id]?.done).length;
+    const total = qiquHistory.length;
+    itemRows.push([s.name, done, total, total > 0 ? Math.round(done/total*100) + '%' : '0%']);
+  });
+  const ws4 = XLSX.utils.aoa_to_sheet(itemRows); ws4['!cols'] = [{wch:10},{wch:12},{wch:12},{wch:8}];
+  XLSX.utils.book_append_sheet(wb, ws4, '分项统计');
+
+  const filename = `七部曲日课-${qiquToday}.xlsx`;
+  XLSX.writeFile(wb, filename);
+  showToast('Excel 已导出（4 个工作表）');
+}
+
+function qiquExportJSON() {
+  const data = JSON.stringify(qiquHistory, null, 2);
+  const blob = new Blob([data], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `七部曲日课-${qiquToday}.json`; a.click();
+  URL.revokeObjectURL(url);
+  showToast('JSON 已导出');
+}
+
+function qiquImportJSON(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!Array.isArray(imported)) throw new Error('格式错误');
+      const existingDates = new Set(qiquHistory.map(r => r.date));
+      const newRecords = imported.filter(r => r.date && !existingDates.has(r.date));
+      qiquHistory = qiquHistory.concat(newRecords);
+      qiquHistory.sort((a, b) => b.date.localeCompare(a.date));
+      qiquSaveHistory();
+      document.getElementById('qiquImportResult').textContent = `导入了 ${newRecords.length} 条新记录，共 ${qiquHistory.length} 条`;
+      showToast(`成功导入 ${newRecords.length} 条`);
+    } catch(err) { document.getElementById('qiquImportResult').textContent = '导入失败：文件格式不正确'; }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+// ═══════════════════════════════════════════════
+//  BOOT
+// ═══════════════════════════════════════════════
+loadData();           // fitness
+qiquLoadData();       // qiqu
+renderExercises();    // fitness initial render
+renderDaySelector();  // fitness meal day selector
 </script>
 </body>
 </html>
