@@ -1,0 +1,25 @@
+# 敏感个人信息
+数据.txt
+我的要求.txt
+
+# 临时文件
+/tmp/
+*_output.txt
+ip_output.txt
+
+# 系统文件
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# 大文件（EPUB/PDF 书籍，有版权）
+*.epub
+*.pdf
+*.azw3
+*.mobi
+
+# CC Switch 工具
+cc switch/
+
+# Node
+node_modules/

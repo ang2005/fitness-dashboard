@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>减脂力量看板</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --card: #14141f;
+    --card-hover: #1a1a2a;
+    --accent: #f43f5e;
+    --accent2: #f97316;
+    --gold: #eab308;
+    --green: #22c55e;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --border: #1e293b;
+    --input-bg: #0f0f1a;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'SF Pro Display', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    margin: 0; padding: 0; user-select: none; -webkit-user-select: none; overscroll-behavior: none;
+  }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 16px; margin-bottom: 12px; transition: border-color 0.2s;
+  }
+  .card.completed { border-color: var(--green); border-width: 2px; }
+  .accent-text { color: var(--accent); }
+  .accent-bg { background: var(--accent); }
+  .muted { color: var(--muted); }
+
+  input[type="number"] {
+    background: var(--input-bg); border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; padding: 8px 10px; width: 100%; font-size: 15px;
+    font-family: 'SF Mono', 'Consolas', monospace;
+  }
+  input[type="number"]:focus { outline: none; border-color: var(--accent); }
+  input[type="file"] { display: none; }
+
+  .btn-accent {
+    background: var(--accent); color: #fff; border: none; border-radius: 10px;
+    padding: 12px 20px; font-weight: 700; font-size: 15px; cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.2s; box-shadow: 0 0 20px rgba(244,63,94,0.3);
+  }
+  .btn-accent:active { transform: scale(0.96); }
+  .btn-ghost {
+    background: transparent; border: 1px solid var(--border); color: var(--muted);
+    border-radius: 10px; padding: 10px 16px; font-weight: 600; font-size: 13px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--text); }
+
+  .day-tab {
+    padding: 10px 18px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--card); color: var(--muted); font-weight: 600; font-size: 14px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .day-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .set-dot {
+    width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; color: var(--muted);
+  }
+  .set-dot.done { background: var(--green); border-color: var(--green); color: #fff; }
+
+  .timer-bar { height: 4px; border-radius: 2px; background: var(--border); overflow: hidden; }
+  .timer-fill { height: 100%; background: var(--accent2); transition: width 0.1s linear; }
+
+  .progress-ring { transform: rotate(-90deg); }
+  .progress-ring circle { transition: stroke-dashoffset 0.4s ease; }
+
+  .alt-tag { display: inline-block; background: rgba(249,115,22,0.15); color: var(--accent2);
+    padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: 6px; }
+  .muscle-tag { display: inline-block; background: rgba(148,163,184,0.1); color: var(--muted);
+    padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-right: 4px; }
+
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  .pulsing { animation: pulse 0.8s infinite; }
+
+  .toast {
+    position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+    background: var(--green); color: #000; padding: 10px 24px;
+    border-radius: 24px; font-weight: 700; font-size: 14px;
+    z-index: 100; transition: transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+  }
+  .toast.hidden { transform: translateX(-50%) translateY(-120px); }
+
+  .meal-card {
+    background: linear-gradient(135deg, #14141f 0%, #1a1025 100%);
+    border: 1px solid var(--border); border-radius: 16px; padding: 14px 16px; margin-bottom: 10px;
+  }
+  .meal-time { font-size: 12px; font-weight: 700; color: var(--accent2);
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .meal-item { display: flex; align-items: center; gap: 8px;
+    padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .meal-item:last-child { border-bottom: none; }
+  .meal-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .meal-dot.pro { background: #f43f5e; }
+  .meal-dot.carb { background: #f97316; }
+  .meal-dot.fat { background: #eab308; }
+  .meal-dot.veg { background: #22c55e; }
+
+  .macro-bar { height: 6px; border-radius: 3px; background: #1e293b; overflow: hidden; margin-top: 4px; }
+  .macro-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+
+  .tip-banner {
+    background: rgba(234,179,8,0.08); border: 1px solid rgba(234,179,8,0.2);
+    border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; font-size: 13px;
+    color: var(--gold); line-height: 1.6;
+  }
+
+  .volume-card {
+    background: linear-gradient(135deg, rgba(34,197,94,0.06) 0%, rgba(34,197,94,0.02) 100%);
+    border: 1px solid rgba(34,197,94,0.2); border-radius: 12px;
+    padding: 12px 14px; margin-bottom: 14px;
+  }
+  .volume-meter { height: 8px; border-radius: 4px; background: #1e293b; overflow: hidden; }
+  .volume-fill { height: 100%; border-radius: 4px; transition: width 0.4s; }
+
+  .history-item {
+    border-bottom: 1px solid rgba(255,255,255,0.04); padding: 10px 0;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .history-item:hover { background: rgba(255,255,255,0.02); }
+  .history-item:last-child { border-bottom: none; }
+
+  .collapse-header {
+    display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; user-select: none;
+  }
+  .collapse-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+  .collapse-content.open { max-height: 2000px; }
+
+  #mealSection { display: none; }
+  #historySection { display: none; }
+</style>
+</head>
+<body class="max-w-lg mx-auto px-4 py-6">
+
+<!-- MODE TOGGLE -->
+<div class="flex gap-2 mb-5 p-1 rounded-xl bg-[#14141f] border border-[#1e293b]">
+  <button class="mode-tab active flex-1 py-2.5 rounded-lg text-sm font-bold transition-all"
+          data-mode="workout" id="modeWorkout">训练</button>
+  <button class="mode-tab flex-1 py-2.5 rounded-lg text-sm font-bold transition-all"
+          data-mode="meal" id="modeMeal">食谱</button>
+  <button class="mode-tab flex-1 py-2.5 rounded-lg text-sm font-bold transition-all"
+          data-mode="history" id="modeHistory">复盘</button>
+</div>
+<style>
+  .mode-tab { color: var(--muted); background: transparent; border: none; cursor: pointer; }
+  .mode-tab.active { background: var(--accent); color: #fff; }
+</style>
+
+<!-- TOAST -->
+<div id="toast" class="toast hidden"></div>
+
+<!-- HEADER -->
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-2xl font-extrabold tracking-tight">
+      <span class="text-white">力量</span><span class="accent-text">看板</span>
+    </h1>
+    <p class="text-xs muted mt-1" id="headerSub">减脂 · 力量 · 无伤</p>
+  </div>
+  <div class="relative w-20 h-20">
+    <svg class="progress-ring" width="80" height="80" viewBox="0 0 80 80">
+      <circle cx="40" cy="40" r="34" fill="none" stroke="#1e293b" stroke-width="5"/>
+      <circle id="progressCircle" cx="40" cy="40" r="34" fill="none" stroke="#f43f5e" stroke-width="5"
+              stroke-dasharray="213.63" stroke-dashoffset="213.63" stroke-linecap="round"/>
+    </svg>
+    <div class="absolute inset-0 flex items-center justify-center">
+      <span id="progressPct" class="text-lg font-bold">0%</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ 训练模块 ═══════════════ -->
+<div id="workoutSection">
+
+<!-- 每日推荐运动量卡片 (可折叠) -->
+<div class="volume-card">
+  <div class="collapse-header" onclick="document.getElementById('volumeBody').classList.toggle('open')">
+    <div class="flex items-center gap-2">
+      <span class="text-sm font-bold" style="color:#4ade80;">每日推荐运动量</span>
+      <span class="text-xs muted" id="volumeStatus">加载中...</span>
+    </div>
+    <span class="text-xs muted" id="volumeArrow">▲</span>
+  </div>
+  <div class="collapse-content open" id="volumeBody">
+    <div class="mt-3 space-y-3" id="volumeContent"></div>
+  </div>
+</div>
+
+<!-- DAY SELECTOR -->
+<div class="flex gap-2 mb-5 overflow-x-auto pb-1">
+  <button class="day-tab active" data-day="0">Day A · 推主导</button>
+  <button class="day-tab" data-day="1">Day B · 拉主导</button>
+  <button class="day-tab" data-day="2">Day C · 腿核心</button>
+</div>
+
+<!-- STATS ROW -->
+<div class="grid grid-cols-3 gap-2 mb-5">
+  <div class="card text-center py-3">
+    <div class="text-xl font-bold accent-text" id="statDone">0</div>
+    <div class="text-xs muted">已完成组</div>
+  </div>
+  <div class="card text-center py-3">
+    <div class="text-xl font-bold text-white" id="statTotal">15</div>
+    <div class="text-xs muted">总组数</div>
+  </div>
+  <div class="card text-center py-3">
+    <div class="text-xl font-bold text-orange-400" id="statWeight">0</div>
+    <div class="text-xs muted">总容量(kg)</div>
+  </div>
+</div>
+
+<!-- EXERCISE LIST -->
+<div id="exerciseList"></div>
+
+<!-- ACTION BUTTONS -->
+<div class="flex gap-3 mt-5">
+  <button class="btn-accent flex-1" onclick="resetAll()">重置今日</button>
+  <button class="flex-1 py-3 rounded-xl border border-slate-700 text-slate-400 font-bold text-sm bg-transparent"
+          onclick="finishWorkout()">完成训练</button>
+</div>
+<div class="flex gap-2 mt-3">
+  <button class="btn-ghost flex-1" onclick="exportExcel()">导出 Excel</button>
+  <button class="btn-ghost flex-1" onclick="document.getElementById('importFile').click()">导入历史</button>
+  <input type="file" id="importFile" accept=".json" onchange="importData(this)">
+</div>
+<p class="text-center text-xs muted mt-4">组间休息 90 秒 · 每周 3 天 · 非连续日训练</p>
+
+</div><!-- /workoutSection -->
+
+<!-- ═══════════════ 食谱模块 ═══════════════ -->
+<div id="mealSection">
+  <div class="card mb-5">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-bold text-white" id="mealTitle">周一 · 训练日</h3>
+      <span class="text-xs font-bold px-2 py-1 rounded-full" id="mealBadge" style="background:var(--accent);color:#fff;">训练日</span>
+    </div>
+    <div class="grid grid-cols-3 gap-3 text-center">
+      <div><div class="text-2xl font-extrabold accent-text" id="mealKcal">2100</div><div class="text-xs muted">目标 kcal</div></div>
+      <div><div class="text-2xl font-extrabold text-orange-400">140</div><div class="text-xs muted">蛋白质 g</div></div>
+      <div><div class="text-2xl font-extrabold text-yellow-400">500+</div><div class="text-xs muted">蔬菜 g</div></div>
+    </div>
+    <div class="mt-4 space-y-2" id="macroBars"></div>
+  </div>
+  <div class="tip-banner" id="handTip"></div>
+  <div class="flex gap-1.5 mb-5 overflow-x-auto pb-1" id="daySelector"></div>
+  <div id="dayMeals"></div>
+  <div class="card mt-5" style="border-color:rgba(244,63,94,0.3);" id="daySummary"></div>
+</div>
+
+<!-- ═══════════════ 复盘模块 ═══════════════ -->
+<div id="historySection">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="font-bold text-white text-lg">训练历史复盘</h3>
+    <div class="flex gap-2">
+      <button class="btn-ghost text-xs" onclick="exportExcel()">导出 Excel</button>
+      <button class="btn-ghost text-xs" onclick="document.getElementById('importFile2').click()">导入</button>
+      <input type="file" id="importFile2" accept=".json" onchange="importData(this)" style="display:none;">
+    </div>
+  </div>
+
+  <!-- 周统计 -->
+  <div class="card mb-4" id="weeklyStats"></div>
+
+  <!-- 历史列表 -->
+  <div class="text-xs muted mb-2 flex items-center justify-between">
+    <span id="historyCount">共 0 条记录</span>
+    <button class="text-xs font-bold" style="color:var(--accent);background:none;border:none;cursor:pointer;"
+            onclick="clearHistory()">清空历史</button>
+  </div>
+  <div id="historyList" class="max-h-96 overflow-y-auto"></div>
+</div>
+
+<!-- REST TIMER OVERLAY -->
+<div id="timerOverlay" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center flex-col">
+  <div class="text-7xl font-extrabold text-white mb-4 tabular-nums" id="timerDisplay">90</div>
+  <div class="text-sm muted mb-8">组间休息</div>
+  <div class="timer-bar w-64 mb-6"><div class="timer-fill w-full" id="timerFill"></div></div>
+  <button class="btn-accent text-lg px-10" onclick="skipTimer()">跳过</button>
+</div>
+
+<!-- 无额外弹窗——导出直接触发下载 -->
+
+<script>
+// ── 训练数据 ──
+const workoutDays = [
+  { // Day A — 推主导
+    name: "Day A · 推主导", focus: "胸、肩、三头、腿",
+    exercises: [
+      { name:"器械坐姿推胸", muscle:"胸", alt:"哑铃平板卧推（轻重量，10-12 RM）", sets:3, reps:"10-12", weight:20, key:"chest_press",
+        tip:"肩胛骨收紧贴靠背，手腕不弯曲，推到肘微屈即可", safety:"安全器械，轨迹固定，新手最友好的胸部动作", source:"NASM 推荐新手首选固定器械" },
+      { name:"器械坐姿推肩", muscle:"肩", alt:"哑铃坐姿推举（轻重量，12-15 RM）", sets:3, reps:"10-12", weight:10, key:"shoulder_press",
+        tip:"核心收紧，推到头顶正上方，下落时肘不低过肩", safety:"器械固定轨迹，避免肩袖损伤", source:"NASM 推荐避开新手颈后下拉等肩部高危动作" },
+      { name:"绳索肱三头肌下压", muscle:"手臂", alt:"凳上臂屈伸（体重即可）", sets:3, reps:"12-15", weight:10, key:"tricep",
+        tip:"大臂固定于体侧不动，只动前臂，到底部挤压三头", safety:"绳索机固定轨迹，不伤手腕", source:"NASM 推荐孤立手臂训练避开窄距卧推" },
+      { name:"倒蹬机（腿举）", muscle:"腿", alt:"高脚杯深蹲（哑铃胸前抱住，自重→负重）", sets:3, reps:"10-12", weight:40, key:"leg_press",
+        tip:"双脚与肩同宽踩实，膝盖与脚尖同向，下到 90 度即可", safety:"倒蹬机保护腰椎，《力量训练基础》认可作为深蹲辅助", source:"Starting Strength 推荐深蹲替代/辅助动作" },
+      { name:"高位下拉（前侧）", muscle:"背", alt:"辅助引体向上机", sets:3, reps:"10-12", weight:25, key:"lat_pulldown",
+        tip:"挺胸沉肩，拉到锁骨位置，身体不要后仰太多", safety:"固定器械，新手安全练背首选", source:"NASM 推荐——引体向上对新手上肢力量要求过高" }
+    ]
+  },
+  { // Day B — 拉主导
+    name: "Day B · 拉主导", focus: "背、二头、后链、肩后束",
+    exercises: [
+      { name:"坐姿绳索划船", muscle:"背", alt:"单臂哑铃划船（另一手扶凳）", sets:3, reps:"10-12", weight:20, key:"seated_row",
+        tip:"背挺直，拉到腹部，肩胛骨完全夹紧", safety:"绳索机稳定轨迹，保护下背", source:"NASM 推荐优先器械划船而非杠铃划船（新手易弓腰）" },
+      { name:"绳索面拉", muscle:"肩后束", alt:"反向蝴蝶机", sets:3, reps:"15-20", weight:5, key:"face_pull",
+        tip:"拉到脸部高度，肘高于手，拇指朝外", safety:"矫正圆肩的关键动作，肩关节健康必做", source:"NASM 矫正训练模块重点推荐" },
+      { name:"器械坐姿弯举", muscle:"手臂", alt:"哑铃交替弯举", sets:3, reps:"12-15", weight:10, key:"curl",
+        tip:"大臂固定，缓慢下放（离心 3 秒）", safety:"器械隔离，避免借力", source:"NASM 推荐新手使用固定器械孤立训练" },
+      { name:"哑铃罗马尼亚硬拉", muscle:"后链", alt:"器械俯卧腿弯举", sets:3, reps:"10-12", weight:10, key:"rdl",
+        tip:"膝微屈，髋部后推，杠铃/哑铃贴腿，背始终挺直", safety:"轻重量哑铃学习髋铰链模式，《力量训练基础》核心动作简化版", source:"Starting Strength 硬拉章节——髋铰链是一切硬拉的基础" },
+      { name:"平板支撑", muscle:"核心", alt:"死虫式（Dead Bug）", sets:3, reps:"30-45秒", weight:0, key:"plank",
+        tip:"身体一条直线，臀不塌腰不弓，呼吸均匀", safety:"零关节压力核心训练", source:"NASM 核心稳定性模块推荐" }
+    ]
+  },
+  { // Day C — 腿+核心主导
+    name: "Day C · 腿核心", focus: "腿、臀、核心、肩",
+    exercises: [
+      { name:"高脚杯深蹲", muscle:"腿", alt:"倒蹬机（腿举）", sets:3, reps:"10-12", weight:8, key:"goblet_squat",
+        tip:"哑铃胸前抱住，臀后坐像坐椅子，膝外展，蹲到大腿平行地面", safety:"胸前负重自然挺直躯干，《力量训练基础》深蹲入门第一步", source:"Starting Strength 教学流程——高脚杯深蹲是杠铃深蹲的前置训练" },
+      { name:"保加利亚分腿蹲", muscle:"腿", alt:"自重弓步走", sets:3, reps:"8-10/每侧", weight:0, key:"bulgarian",
+        tip:"后脚搭凳，前脚向前站，垂直下沉，膝不超过脚尖过多", safety:"先自重学会控制平衡", source:"NASM 推荐单侧训练纠正左右不平衡" },
+      { name:"器械坐姿腿弯举", muscle:"后链", alt:"健身球腘绳肌弯举", sets:3, reps:"12-15", weight:15, key:"leg_curl",
+        tip:"慢速离心（下放 3 秒），充分感受腘绳肌拉伸", safety:"固定器械零风险", source:"NASM 推荐用固定器械隔离腘绳肌" },
+      { name:"哑铃侧平举", muscle:"肩", alt:"器械侧平举", sets:3, reps:"12-15", weight:3, key:"lateral_raise",
+        tip:"肘微屈，小重量，不要耸肩，用肩带动而非手臂", safety:"小重量高次数，避免肩峰撞击", source:"NASM 推荐肩中束孤立训练用轻重量" },
+      { name:"悬垂举腿（屈膝版）", muscle:"核心", alt:"仰卧举腿", sets:3, reps:"8-12", weight:0, key:"knee_raise",
+        tip:"屈膝做，用下腹发力卷起骨盆，不要靠惯性摆动", safety:"如果握力不够，先从仰卧版开始", source:"NASM 核心训练进阶模块" }
+    ]
+  }
+];
+
+let currentDay = 0;
+let timerId = null;
+let timerSeconds = 0;
+let data = {};
+let trainingHistory = [];
+
+// ── 初始化 ──
+function loadData() {
+  const saved = localStorage.getItem('fitness_dashboard');
+  if (saved) { try { data = JSON.parse(saved); } catch(e) { data = {}; } }
+  workoutDays.forEach((day, di) => {
+    day.exercises.forEach((ex, ei) => {
+      const k = `${di}_${ei}`;
+      if (!data[k]) data[k] = { setsDone: 0, weight: ex.weight, reps: ex.reps, completed: false };
+    });
+  });
+  const hist = localStorage.getItem('fitness_history');
+  if (hist) { try { trainingHistory = JSON.parse(hist); } catch(e) { trainingHistory = []; } }
+}
+function saveData() { localStorage.setItem('fitness_dashboard', JSON.stringify(data)); }
+function saveHistory() { localStorage.setItem('fitness_history', JSON.stringify(trainingHistory)); }
+
+// ── 进度计算 ──
+function calcProgress() {
+  const day = workoutDays[currentDay];
+  let totalSets = 0, doneSets = 0, totalWt = 0;
+  day.exercises.forEach((ex, ei) => {
+    const k = `${currentDay}_${ei}`;
+    const d = data[k];
+    totalSets += ex.sets;
+    doneSets += d.setsDone;
+    if (d.setsDone > 0) totalWt += (d.weight || 0) * d.setsDone * (parseInt(d.reps) || 0);
+  });
+  return { totalSets, doneSets, totalWt, pct: totalSets ? Math.round(doneSets/totalSets*100) : 0 };
+}
+
+// ── 推荐运动量（基于 NASM + Starting Strength） ──
+function getVolumeRec() {
+  const day = workoutDays[currentDay];
+  const totalExercises = day.exercises.length;
+  const totalSets = day.exercises.reduce((s,ex) => s + ex.sets, 0);
+
+  // 新手推荐: 每肌群每周 10-20 组, 每次训练 12-18 组
+  const minSets = 12;
+  const maxSets = 18;
+  const idealSets = totalSets; // 15，刚好在推荐范围中间
+
+  // RPE 推荐: 7-8 (留 2-3 次余力)
+  const rpeRec = "7-8（每组留 2-3 次余力，不做到力竭）";
+
+  // 容量负荷推荐（kg）: 新手阶段 2000-4000 kg/次
+  const minVol = 2000;
+  const maxVol = 4000;
+
+  // 渐进超负荷建议
+  const progression = "每周增加 2-5% 重量或 1-2 次，优先增加重量再增加次数";
+
+  return { totalExercises, totalSets, minSets, maxSets, idealSets, rpeRec, minVol, maxVol, progression };
+}
+
+function renderVolumeRec() {
+  const p = calcProgress();
+  const rec = getVolumeRec();
+  const volPct = rec.maxVol > 0 ? Math.min(100, Math.round(p.totalWt / rec.maxVol * 100)) : 0;
+
+  // 判断状态
+  let statusText, statusColor, statusIcon;
+  if (p.doneSets === 0) {
+    statusText = "等待开始";
+    statusColor = "#64748b";
+    statusIcon = "○";
+  } else if (p.pct < 33) {
+    statusText = "热身阶段";
+    statusColor = "#f97316";
+    statusIcon = "◐";
+  } else if (p.pct < 67) {
+    statusText = "训练中段";
+    statusColor = "#eab308";
+    statusIcon = "◑";
+  } else if (p.pct < 100) {
+    statusText = "接近完成";
+    statusColor = "#4ade80";
+    statusIcon = "●";
+  } else {
+    statusText = "已完成";
+    statusColor = "#22c55e";
+    statusIcon = "✓";
+  }
+  document.getElementById('volumeStatus').textContent = statusIcon + " " + statusText;
+  document.getElementById('volumeStatus').style.color = statusColor;
+
+  document.getElementById('volumeContent').innerHTML = `
+    <div class="text-xs muted">组数目标 <span class="text-white font-bold">${rec.minSets}-${rec.maxSets}</span> 组/次 · 当前计划 <span class="text-green-400 font-bold">${rec.idealSets}</span> 组</div>
+    <div class="volume-meter"><div class="volume-fill" style="width:${Math.min(100, p.doneSets/rec.maxSets*100)}%;background:${statusColor};"></div></div>
+
+    <div class="text-xs muted mt-2">容量负荷目标 <span class="text-white font-bold">${rec.minVol}-${rec.maxVol}</span> kg/次</div>
+    <div class="volume-meter"><div class="volume-fill" style="width:${volPct}%;background:#4ade80;"></div></div>
+    <div class="flex justify-between text-xs mt-0.5"><span class="muted">当前 ${p.totalWt} kg</span><span class="muted">${volPct}%</span></div>
+
+    <div class="grid grid-cols-2 gap-2 mt-3 text-xs">
+      <div><span class="muted">RPE 推荐</span><br><span class="text-white font-bold">${rec.rpeRec}</span></div>
+      <div><span class="muted">渐进策略</span><br><span class="text-white font-bold">${rec.progression}</span></div>
+    </div>
+    <div class="text-xs muted mt-2 pt-2 border-t border-[#1e293b]">
+      <span class="text-yellow-400 font-bold">新手提示：</span>完成全部 ${rec.idealSets} 组即达标。不追求力竭，动作质量优先于重量。
+      每次训练比上次多加 1-2 kg 或 1-2 次，就是有效的渐进超负荷。
+    </div>
+  `;
+}
+
+// ── 渲染训练列表 ──
+function renderExercises() {
+  const container = document.getElementById('exerciseList');
+  const day = workoutDays[currentDay];
+  let html = '';
+  day.exercises.forEach((ex, ei) => {
+    const k = `${currentDay}_${ei}`;
+    const d = data[k];
+    const allDone = d.setsDone >= ex.sets;
+    html += `<div class="card ${allDone ? 'completed' : ''}">`;
+    html += `<div class="flex items-start justify-between mb-2"><div class="flex-1">`;
+    html += `<div class="flex items-center gap-1 flex-wrap"><span class="muscle-tag">${ex.muscle}</span><span class="font-bold text-white text-sm">${ex.name}</span><span class="alt-tag">备选: ${ex.alt}</span></div>`;
+    html += `<p class="text-xs muted mt-1">${ex.tip}</p><p class="text-xs mt-0.5" style="color:#334155">${ex.source}</p></div>`;
+    html += `<span class="text-xs muted whitespace-nowrap ml-2">${ex.sets}×${ex.reps}</span></div>`;
+    html += `<div class="flex gap-2 mb-3">`;
+    html += `<div class="flex-1"><label class="text-xs muted block mb-1">重量 (kg)</label><input type="number" value="${d.weight}" min="0" step="1" onchange="updateWeight(${ei}, this.value)" class="text-sm" /></div>`;
+    html += `<div class="flex-1"><label class="text-xs muted block mb-1">每组次数</label><input type="number" value="${d.reps}" min="1" step="1" onchange="updateReps(${ei}, this.value)" class="text-sm" /></div></div>`;
+    html += `<div class="flex items-center gap-3 flex-wrap">`;
+    for (let s = 0; s < ex.sets; s++) {
+      const done = s < d.setsDone;
+      html += `<div class="set-dot ${done ? 'done' : ''}" onclick="toggleSet(${ei}, ${s})">${done ? '✓' : s+1}</div>`;
+    }
+    html += `<span class="text-xs muted ml-auto">${d.setsDone}/${ex.sets} 组</span></div></div>`;
+  });
+  container.innerHTML = html;
+  updateStats();
+  renderVolumeRec();
+}
+
+function updateWeight(ei, val) { const k = `${currentDay}_${ei}`; data[k].weight = parseInt(val) || 0; saveData(); updateStats(); renderVolumeRec(); }
+function updateReps(ei, val) { const k = `${currentDay}_${ei}`; data[k].reps = val; saveData(); }
+
+function toggleSet(ei, si) {
+  const k = `${currentDay}_${ei}`;
+  const day = workoutDays[currentDay];
+  const ex = day.exercises[ei];
+  if (si < data[k].setsDone) { data[k].setsDone = si; saveData(); renderExercises(); return; }
+  if (si === data[k].setsDone) {
+    data[k].setsDone = si + 1;
+    if (data[k].setsDone >= ex.sets) data[k].completed = true;
+    saveData(); renderExercises();
+    if (data[k].setsDone < ex.sets) { startTimer(); }
+    else { showToast('✓ ' + ex.name + ' 全部完成！'); }
+  }
+}
+
+// ── 计时器 ──
+function startTimer() {
+  timerSeconds = 90;
+  document.getElementById('timerOverlay').classList.remove('hidden');
+  tickTimer();
+}
+function tickTimer() {
+  document.getElementById('timerDisplay').textContent = timerSeconds;
+  document.getElementById('timerFill').style.width = (timerSeconds/90*100) + '%';
+  document.getElementById('timerDisplay').classList.toggle('pulsing', timerSeconds <= 5);
+  if (timerSeconds <= 0) {
+    document.getElementById('timerOverlay').classList.add('hidden');
+    document.getElementById('timerDisplay').classList.remove('pulsing');
+    showToast('休息完毕，开始下一组！');
+    if (navigator.vibrate) navigator.vibrate([200,100,200]);
+    return;
+  }
+  timerSeconds--;
+  timerId = setTimeout(tickTimer, 1000);
+}
+function skipTimer() {
+  clearTimeout(timerId); timerId = null;
+  document.getElementById('timerOverlay').classList.add('hidden');
+  document.getElementById('timerDisplay').classList.remove('pulsing');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.remove('hidden');
+  clearTimeout(t._timeout);
+  t._timeout = setTimeout(() => t.classList.add('hidden'), 2000);
+}
+
+function updateStats() {
+  const p = calcProgress();
+  document.getElementById('statDone').textContent = p.doneSets;
+  document.getElementById('statTotal').textContent = p.totalSets;
+  document.getElementById('statWeight').textContent = p.totalWt;
+  document.getElementById('progressPct').textContent = p.pct + '%';
+  const circle = document.getElementById('progressCircle');
+  circle.style.strokeDashoffset = 213.63 * (1 - p.pct/100);
+  if (p.pct === 100 && p.totalSets > 0) showToast('🎉 今日训练完成！太强了！');
+}
+
+function resetAll() {
+  if (!confirm('确定要重置今日所有训练数据吗？')) return;
+  workoutDays[currentDay].exercises.forEach((ex, ei) => {
+    const k = `${currentDay}_${ei}`;
+    data[k].setsDone = 0; data[k].completed = false;
+  });
+  saveData(); renderExercises();
+}
+
+// ── 完成训练 → 存入历史 ──
+function finishWorkout() {
+  const p = calcProgress();
+  if (p.pct < 50) {
+    if (!confirm(`今天才完成 ${p.pct}%，确定要结束吗？`)) return;
+  }
+  const day = workoutDays[currentDay];
+  const now = new Date();
+  const dateStr = now.toISOString().split('T')[0];
+  const timeStr = now.toTimeString().split(' ')[0].substring(0,5);
+
+  // 构建记录
+  const record = {
+    date: dateStr,
+    time: timeStr,
+    timestamp: now.toISOString(),
+    dayName: day.name,
+    dayIndex: currentDay,
+    exercises: day.exercises.map((ex, ei) => {
+      const k = `${currentDay}_${ei}`;
+      const d = data[k];
+      return { name: ex.name, muscle: ex.muscle, setsDone: d.setsDone, totalSets: ex.sets, weight: d.weight, reps: d.reps };
+    }),
+    totalSetsDone: p.doneSets,
+    totalSets: p.totalSets,
+    totalVolume: p.totalWt,
+    pct: p.pct
+  };
+
+  trainingHistory.push(record);
+  saveHistory();
+  showToast('训练已存档！可在"复盘"查看');
+
+  // 重置今日数据，准备下次训练
+  workoutDays[currentDay].exercises.forEach((ex, ei) => {
+    const k = `${currentDay}_${ei}`;
+    data[k].setsDone = 0; data[k].completed = false;
+  });
+  saveData();
+  renderExercises();
+}
+
+// ── 导出 Excel ──
+function exportExcel() {
+  // SheetJS 不可用时降级
+  if (typeof XLSX === 'undefined') {
+    exportCSV();
+    return;
+  }
+
+  const wb = XLSX.utils.book_new();
+  const summary = generateSummary();
+
+  // ── Sheet 1: 训练历史明细 ──
+  const historyRows = [['日期', '时间', '训练日', '动作', '肌群', '完成组数', '总组数', '重量(kg)', '每组次数', '容量小计(kg)', '完成率']];
+  trainingHistory.forEach(rec => {
+    const dateStr = rec.date || '';
+    const timeStr = rec.time || '';
+    const dayName = rec.dayName || '';
+    (rec.exercises || []).forEach(ex => {
+      const volSubtotal = (ex.setsDone || 0) * (ex.weight || 0) * (parseInt(ex.reps) || 0);
+      historyRows.push([
+        dateStr, timeStr, dayName,
+        ex.name || '', ex.muscle || '',
+        ex.setsDone || 0, ex.totalSets || 0,
+        ex.weight || 0, ex.reps || '',
+        volSubtotal,
+        ex.totalSets > 0 ? Math.round(ex.setsDone / ex.totalSets * 100) + '%' : '0%'
+      ]);
+    });
+    historyRows.push(['', '', '', '', '', '', '', '', '', '', '']);
+  });
+
+  const ws1 = XLSX.utils.aoa_to_sheet(historyRows);
+  ws1['!cols'] = [
+    {wch:12},{wch:8},{wch:18},
+    {wch:22},{wch:8},{wch:10},{wch:10},{wch:10},{wch:10},{wch:14},{wch:10}
+  ];
+  XLSX.utils.book_append_sheet(wb, ws1, '训练历史');
+
+  // ── Sheet 2: 每日汇总 ──
+  const dailyRows = [['日期', '训练日', '完成组数', '总组数', '总容量(kg)', '完成率']];
+  trainingHistory.forEach(rec => {
+    dailyRows.push([rec.date || '', rec.dayName || '', rec.totalSetsDone || 0, rec.totalSets || 0, rec.totalVolume || 0, (rec.pct || 0) + '%']);
+  });
+  const ws2 = XLSX.utils.aoa_to_sheet(dailyRows);
+  ws2['!cols'] = [{wch:12},{wch:18},{wch:10},{wch:10},{wch:14},{wch:10}];
+  XLSX.utils.book_append_sheet(wb, ws2, '每日汇总');
+
+  // ── Sheet 3: 统计概览 ──
+  const statsRows = [
+    ['指标', '数值'],
+    ['总训练次数', summary.totalSessions],
+    ['本周次数', summary.weekSessions],
+    ['本月次数', summary.monthSessions],
+    ['平均完成率', summary.avgCompletionPct + '%'],
+    ['近期5次均容量(kg)', summary.recent5AvgVolume],
+    ['更早5次均容量(kg)', summary.older5AvgVolume],
+    ['容量趋势', summary.volumeTrend],
+    ['累计总容量(kg)', summary.totalVolumeAllTime],
+    ['导出时间', new Date().toLocaleString('zh-CN')]
+  ];
+  const ws3 = XLSX.utils.aoa_to_sheet(statsRows);
+  ws3['!cols'] = [{wch:22},{wch:20}];
+  XLSX.utils.book_append_sheet(wb, ws3, '统计概览');
+
+  // ── Sheet 4: 7天食谱 ──
+  const mealRows = [['日期', '类型', '餐次', '食物项', '备注', '热量', '蛋白质']];
+  weeklyMeals.forEach(d => {
+    d.meals.forEach(m => {
+      const timeName = m.time;
+      m.items.forEach(item => {
+        mealRows.push([d.label, d.type === 'train' ? '训练日' : '休息日', timeName, item.txt, item.note, '', '']);
+      });
+      mealRows.push([d.label, '', '', '', '', m.kcal || '', m.pro || '']);
+    });
+  });
+  const ws4 = XLSX.utils.aoa_to_sheet(mealRows);
+  ws4['!cols'] = [{wch:8},{wch:8},{wch:20},{wch:35},{wch:25},{wch:10},{wch:10}];
+  XLSX.utils.book_append_sheet(wb, ws4, '7天食谱');
+
+  // 下载
+  const filename = `健身数据-${new Date().toISOString().split('T')[0]}.xlsx`;
+  XLSX.writeFile(wb, filename);
+  showToast('Excel 已导出（4 个工作表）！');
+}
+
+// ── CSV 降级（SheetJS 不可用时） ──
+function exportCSV() {
+  const exportObj = { exportDate: new Date().toISOString(), version: "2.0", currentData: data, history: trainingHistory, summary: generateSummary() };
+  const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `健身数据-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('SheetJS 未加载，已降级导出 JSON');
+}
+
+// ── 导入数据 ──
+function importData(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!imported.history || !Array.isArray(imported.history)) {
+        alert('文件格式不正确，缺少 history 字段'); return;
+      }
+      if (!confirm(`即将导入 ${imported.history.length} 条训练记录。\n现有 ${trainingHistory.length} 条记录将被合并（相同时间戳不会重复）。\n继续？`)) return;
+
+      // 合并历史（按时间戳去重）
+      const existingTimestamps = new Set(trainingHistory.map(r => r.timestamp));
+      const newRecords = imported.history.filter(r => !existingTimestamps.has(r.timestamp));
+      trainingHistory = trainingHistory.concat(newRecords);
+      trainingHistory.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+      saveHistory();
+
+      // 可选：恢复当前训练数据
+      if (imported.currentData && confirm('是否同时恢复上次训练进度？')) {
+        data = imported.currentData;
+        saveData();
+        renderExercises();
+      }
+
+      showToast(`成功导入 ${newRecords.length} 条新记录！`);
+      renderHistory();
+      if (input) input.value = '';
+    } catch(err) {
+      alert('导入失败：' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ── 生成周/月汇总 ──
+function generateSummary() {
+  const now = new Date();
+  const weekAgo = new Date(now - 7*86400000).toISOString();
+  const monthAgo = new Date(now - 30*86400000).toISOString();
+
+  const weekRecords = trainingHistory.filter(r => r.timestamp >= weekAgo);
+  const monthRecords = trainingHistory.filter(r => r.timestamp >= monthAgo);
+
+  const totalSessions = trainingHistory.length;
+  const weekSessions = weekRecords.length;
+  const monthSessions = monthRecords.length;
+
+  // 计算每周平均容量
+  const monthVolume = monthRecords.reduce((s,r) => s + (r.totalVolume||0), 0);
+  const avgVolume = monthSessions > 0 ? Math.round(monthVolume / (monthSessions/7)) : 0;
+
+  // 完成率
+  const avgPct = trainingHistory.length > 0
+    ? Math.round(trainingHistory.reduce((s,r) => s + (r.pct||0), 0) / trainingHistory.length) : 0;
+
+  // 容量趋势（最近 5 次 vs 前 5 次）
+  const recent5 = trainingHistory.slice(0,5);
+  const older5 = trainingHistory.slice(5,10);
+  const recent5Vol = recent5.reduce((s,r) => s + (r.totalVolume||0), 0) / Math.max(1, recent5.length);
+  const older5Vol = older5.reduce((s,r) => s + (r.totalVolume||0), 0) / Math.max(1, older5.length);
+  const trend = older5Vol > 0 ? Math.round((recent5Vol - older5Vol) / older5Vol * 100) : 0;
+
+  return {
+    totalSessions, weekSessions, monthSessions,
+    avgCompletionPct: avgPct,
+    avgWeeklyVolume: avgVolume,
+    recent5AvgVolume: Math.round(recent5Vol),
+    older5AvgVolume: Math.round(older5Vol),
+    volumeTrend: trend > 0 ? `上升 +${trend}%` : trend < 0 ? `下降 ${trend}%` : '持平',
+    totalVolumeAllTime: trainingHistory.reduce((s,r) => s + (r.totalVolume||0), 0)
+  };
+}
+
+// ── 渲染复盘 ──
+function renderHistory() {
+  const summary = generateSummary();
+  const now = new Date();
+  const weekAgo = new Date(now - 7*86400000);
+  const weekRecords = trainingHistory.filter(r => r.timestamp >= weekAgo.toISOString());
+  const weekTarget = 3; // 每周目标 3 次
+
+  // 周统计卡片
+  document.getElementById('weeklyStats').innerHTML = `
+    <div class="text-sm font-bold text-white mb-3">本周概览 (${weekAgo.toLocaleDateString('zh-CN')} - 至今)</div>
+    <div class="grid grid-cols-4 gap-2 text-center mb-3">
+      <div><div class="text-xl font-bold ${weekRecords.length >= weekTarget ? 'text-green-400' : 'accent-text'}">${weekRecords.length}</div><div class="text-xs muted">本周次数</div></div>
+      <div><div class="text-xl font-bold text-white">${weekTarget}</div><div class="text-xs muted">周目标</div></div>
+      <div><div class="text-xl font-bold text-orange-400">${summary.avgCompletionPct}%</div><div class="text-xs muted">平均完成率</div></div>
+      <div><div class="text-xl font-bold ${summary.volumeTrend.includes('上升') ? 'text-green-400' : 'text-amber-400'}">${summary.volumeTrend}</div><div class="text-xs muted">容量趋势</div></div>
+    </div>
+    <div class="grid grid-cols-2 gap-2 text-xs">
+      <div><span class="muted">月度训练</span> <span class="text-white font-bold">${summary.monthSessions} 次</span></div>
+      <div><span class="muted">累计总训练</span> <span class="text-white font-bold">${summary.totalSessions} 次</span></div>
+      <div><span class="muted">近期均容量</span> <span class="text-white font-bold">${summary.recent5AvgVolume} kg</span></div>
+      <div><span class="muted">累计总容量</span> <span class="text-white font-bold">${(summary.totalVolumeAllTime/1000).toFixed(1)}k kg</span></div>
+    </div>
+    ${weekRecords.length < weekTarget ? `<div class="text-xs mt-2 pt-2 border-t border-[#1e293b] text-amber-400">本周还有 ${weekTarget-weekRecords.length} 次待完成，加油！</div>` : `<div class="text-xs mt-2 pt-2 border-t border-[#1e293b] text-green-400">本周目标已达成！超额完成更棒。</div>`}
+  `;
+
+  // 历史列表
+  document.getElementById('historyCount').textContent = `共 ${trainingHistory.length} 条记录`;
+  let listHTML = '';
+  if (trainingHistory.length === 0) {
+    listHTML = '<div class="text-center text-xs muted py-8">暂无训练记录。去训练页完成一次训练就会出现在这里。</div>';
+  } else {
+    trainingHistory.forEach((rec, idx) => {
+      const date = new Date(rec.timestamp);
+      const dayOfWeek = ['日','一','二','三','四','五','六'][date.getDay()];
+      const pctColor = rec.pct >= 100 ? '#22c55e' : rec.pct >= 60 ? '#eab308' : '#f43f5e';
+      listHTML += `<div class="history-item" onclick="showHistoryDetail(${idx})">`;
+      listHTML += `<div class="flex justify-between items-center">`;
+      listHTML += `<div><span class="text-sm font-bold text-white">${rec.dayName}</span>`;
+      listHTML += `<span class="text-xs muted ml-2">${rec.date} 周${dayOfWeek} ${rec.time||''}</span></div>`;
+      listHTML += `<div class="flex items-center gap-2">`;
+      listHTML += `<span class="text-xs font-bold" style="color:${pctColor}">${rec.pct}%</span>`;
+      listHTML += `<span class="text-xs muted">${rec.totalSetsDone}/${rec.totalSets}组</span>`;
+      listHTML += `<span class="text-xs text-orange-400">${rec.totalVolume||0}kg</span>`;
+      listHTML += `</div></div>`;
+      // 展开详情
+      listHTML += `<div class="mt-2 text-xs muted" style="display:none;" id="histDetail${idx}">`;
+      if (rec.exercises) {
+        rec.exercises.forEach(ex => {
+          const done = ex.setsDone >= ex.totalSets;
+          listHTML += `<div class="flex justify-between py-0.5"><span>${done?'✅':'⬜'} ${ex.name} (${ex.muscle})</span><span>${ex.setsDone}/${ex.totalSets}组 ${ex.weight}kg/${ex.reps}次</span></div>`;
+        });
+      }
+      listHTML += `</div>`;
+      listHTML += `</div>`;
+    });
+  }
+  document.getElementById('historyList').innerHTML = listHTML;
+
+  // 更新周目标进度环
+  const weekPct = Math.min(100, Math.round(weekRecords.length / weekTarget * 100));
+  const progressCircle = document.getElementById('progressCircle');
+  progressCircle.style.strokeDashoffset = 213.63 * (1 - weekPct/100);
+  document.getElementById('progressPct').textContent = weekPct + '%';
+  document.getElementById('headerSub').textContent = `本周 ${weekRecords.length}/${weekTarget} 次`;
+}
+
+function showHistoryDetail(idx) {
+  const el = document.getElementById('histDetail'+idx);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function clearHistory() {
+  if (!confirm('确定要清空所有历史记录吗？此操作不可恢复。\n建议先导出备份。')) return;
+  trainingHistory = [];
+  saveHistory();
+  renderHistory();
+  showToast('历史记录已清空');
+}
+
+// ── 日切换 ──
+document.querySelectorAll('.day-tab').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.day-tab').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    currentDay = parseInt(this.dataset.day);
+    renderExercises();
+  });
+});
+
+// ── 模式切换 ──
+let currentMode = 'workout';
+let currentMealDay = 0;
+
+document.getElementById('modeWorkout').addEventListener('click', () => switchMode('workout'));
+document.getElementById('modeMeal').addEventListener('click', () => switchMode('meal'));
+document.getElementById('modeHistory').addEventListener('click', () => switchMode('history'));
+
+function switchMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-tab').forEach(b => b.classList.remove('active'));
+  if (mode === 'workout') document.getElementById('modeWorkout').classList.add('active');
+  if (mode === 'meal') document.getElementById('modeMeal').classList.add('active');
+  if (mode === 'history') document.getElementById('modeHistory').classList.add('active');
+  document.getElementById('workoutSection').style.display = mode === 'workout' ? 'block' : 'none';
+  document.getElementById('mealSection').style.display = mode === 'meal' ? 'block' : 'none';
+  document.getElementById('historySection').style.display = mode === 'history' ? 'block' : 'none';
+  if (mode === 'meal') renderMealDay();
+  if (mode === 'history') renderHistory();
+  if (mode === 'workout') {
+    // 回到训练页时显示当天进度
+    renderVolumeRec();
+    updateStats();
+  }
+}
+
+// ── 7 天食谱数据 ──
+const weeklyMeals = [
+  { label: "周一", type: "train", kcal: 2100, carb: 235, fat: 58, hand: { pro: 4, carb: 4, fat: 3 },
+    meals: [
+      { time:"08:00 早餐", items:[{dot:"pro",txt:"鸡蛋 ×2（整只）",note:"~13g 蛋白质"},{dot:"carb",txt:"燕麦 40g 或全麦面包 2 片",note:"1 拳碳水"},{dot:"pro",txt:"纯牛奶 250ml",note:"~8g 蛋白质"},{dot:"fat",txt:"核桃/杏仁 5g",note:"0.5 拇指"}], kcal: "~500", pro: "~25g" },
+      { time:"12:00 午餐", items:[{dot:"pro",txt:"鸡胸肉 150g",note:"~35g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"米饭（熟）300g",note:"2 拳碳水"},{dot:"veg",txt:"西兰花 / 绿叶菜 200g+",note:"不限量"},{dot:"fat",txt:"橄榄油 10g（1 汤匙）",note:"1 拇指"}], kcal: "~650", pro: "~40g", swap: "可换：瘦牛肉 / 虾仁" },
+      { time:"16:00 训练前加餐 🏋️", items:[{dot:"pro",txt:"蛋白粉 1 勺（约 30g）",note:"~24g 蛋白质"},{dot:"carb",txt:"香蕉 半根",note:"0.5 拳碳水"}], kcal: "~200", pro: "~24g", tip:"训练前 1-2h 补充" },
+      { time:"19:00 晚餐", items:[{dot:"pro",txt:"三文鱼 / 鳕鱼 150g",note:"~32g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"红薯 200g",note:"1.5 拳碳水"},{dot:"veg",txt:"蔬菜 200g+（任意种类）",note:"不限量"},{dot:"fat",txt:"坚果 10g（核桃/松子）",note:"1 拇指"}], kcal: "~550", pro: "~40g", tip:"睡前 1-3h 蛋白质对增肌减脂特别重要" }
+    ]
+  },
+  { label: "周二", type: "rest", kcal: 1850, carb: 165, fat: 60, hand: { pro: 4, carb: 3, fat: 3 },
+    meals: [
+      { time:"08:00 早餐", items:[{dot:"pro",txt:"鸡蛋 ×2（整只）",note:"~13g 蛋白质"},{dot:"carb",txt:"全麦面包 1 片 + 蒸玉米半根",note:"1 拳碳水"},{dot:"pro",txt:"纯牛奶 250ml",note:"~8g 蛋白质"}], kcal: "~450", pro: "~22g" },
+      { time:"12:00 午餐", items:[{dot:"pro",txt:"瘦牛肉 150g（少油煎/卤）",note:"~36g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"米饭（熟）200g",note:"1.5 拳碳水"},{dot:"veg",txt:"青椒/洋葱/蔬菜 200g+",note:"搭配炒不限量"},{dot:"fat",txt:"橄榄油 8g",note:"0.8 拇指"}], kcal: "~580", pro: "~40g", swap: "可换：鸡胸肉 / 虾仁" },
+      { time:"19:00 晚餐", items:[{dot:"pro",txt:"虾仁 150g（清炒/白灼）",note:"~30g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"紫薯/土豆 200g",note:"1.5 拳碳水"},{dot:"veg",txt:"蔬菜 200g+",note:"不限量"},{dot:"fat",txt:"坚果 10g",note:"1 拇指"}], kcal: "~520", pro: "~38g", tip:"休息日碳水略低，蛋白质不减"}
+    ]
+  },
+  { label: "周三", type: "train", kcal: 2100, carb: 235, fat: 58, hand: { pro: 4, carb: 4, fat: 3 },
+    meals: [
+      { time:"08:00 早餐", items:[{dot:"pro",txt:"鸡蛋 ×2（整只）",note:"~13g 蛋白质"},{dot:"carb",txt:"燕麦 40g",note:"1 拳碳水"},{dot:"pro",txt:"豆浆（无糖）300ml",note:"~10g 蛋白质"},{dot:"fat",txt:"核桃 5g",note:"0.5 拇指"}], kcal: "~500", pro: "~25g" },
+      { time:"12:00 午餐", items:[{dot:"pro",txt:"去皮鸡腿肉 150g",note:"~34g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"米饭（熟）300g",note:"2 拳碳水"},{dot:"veg",txt:"西兰花 / 菠菜 200g+",note:"不限量"},{dot:"fat",txt:"橄榄油 10g",note:"1 拇指"}], kcal: "~650", pro: "~40g", swap: "可换：鸡胸肉 / 鱼片" },
+      { time:"16:00 训练前加餐 🏋️", items:[{dot:"pro",txt:"蛋白粉 1 勺（约 30g）",note:"~24g 蛋白质"},{dot:"carb",txt:"香蕉 半根",note:"0.5 拳碳水"}], kcal: "~200", pro: "~24g", tip:"训练前 1-2h 补充" },
+      { time:"19:00 晚餐", items:[{dot:"pro",txt:"鳕鱼 / 龙利鱼 150g（清蒸）",note:"~30g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"杂粮饭 200g",note:"1.5 拳碳水"},{dot:"veg",txt:"蔬菜 200g+",note:"不限量"},{dot:"fat",txt:"坚果 10g",note:"1 拇指"}], kcal: "~550", pro: "~38g", tip:"鱼肉+杂粮组合，消化慢、饱腹感强"}
+    ]
+  },
+  { label: "周四", type: "rest", kcal: 1850, carb: 165, fat: 60, hand: { pro: 4, carb: 3, fat: 3 },
+    meals: [
+      { time:"08:00 早餐", items:[{dot:"pro",txt:"鸡蛋 ×2（整只）",note:"~13g 蛋白质"},{dot:"carb",txt:"蒸红薯 150g",note:"1 拳碳水"},{dot:"pro",txt:"纯牛奶 250ml",note:"~8g 蛋白质"}], kcal: "~440", pro: "~22g" },
+      { time:"12:00 午餐", items:[{dot:"pro",txt:"鸡胸肉 150g",note:"~35g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"米饭（熟）200g",note:"1.5 拳碳水"},{dot:"veg",txt:"番茄/黄瓜/生菜 200g+",note:"凉拌不限量"},{dot:"fat",txt:"橄榄油 8g",note:"0.8 拇指"}], kcal: "~580", pro: "~40g", swap: "可换：瘦牛肉" },
+      { time:"18:30 晚餐", items:[{dot:"pro",txt:"瘦牛肉 150g",note:"~36g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"土豆/山药 200g",note:"1.5 拳碳水"},{dot:"veg",txt:"绿叶菜 200g+",note:"不限量"},{dot:"fat",txt:"坚果 10g",note:"1 拇指"}], kcal: "~530", pro: "~38g", tip:"晚餐稍早，给消化留时间"}
+    ]
+  },
+  { label: "周五", type: "train", kcal: 2100, carb: 235, fat: 58, hand: { pro: 4, carb: 4, fat: 3 },
+    meals: [
+      { time:"08:00 早餐", items:[{dot:"pro",txt:"鸡蛋 ×2（整只）",note:"~13g 蛋白质"},{dot:"carb",txt:"全麦面包 2 片",note:"1 拳碳水"},{dot:"pro",txt:"纯牛奶 250ml",note:"~8g 蛋白质"},{dot:"fat",txt:"花生酱 5g",note:"0.5 拇指"}], kcal: "~500", pro: "~25g" },
+      { time:"12:00 午餐", items:[{dot:"pro",txt:"虾仁 150g",note:"~30g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"米饭（熟）300g",note:"2 拳碳水"},{dot:"veg",txt:"芦笋/西葫芦 200g+",note:"不限量"},{dot:"fat",txt:"橄榄油 10g",note:"1 拇指"}], kcal: "~640", pro: "~38g", swap: "可换：鸡胸肉 / 鱼片" },
+      { time:"16:00 训练前加餐 🏋️", items:[{dot:"pro",txt:"蛋白粉 1 勺（约 30g）",note:"~24g 蛋白质"},{dot:"carb",txt:"香蕉 半根",note:"0.5 拳碳水"}], kcal: "~200", pro: "~24g", tip:"训练前 1-2h 补充" },
+      { time:"19:00 晚餐", items:[{dot:"pro",txt:"鸡胸肉 150g",note:"~35g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"红薯 200g",note:"1.5 拳碳水"},{dot:"veg",txt:"蔬菜 200g+",note:"不限量"},{dot:"fat",txt:"坚果 10g",note:"1 拇指"}], kcal: "~560", pro: "~42g", tip:"睡前 1-3h 蛋白质"}
+    ]
+  },
+  { label: "周六", type: "rest", kcal: 1900, carb: 170, fat: 62, hand: { pro: 4, carb: 3, fat: 3 },
+    meals: [
+      { time:"08:00 早餐", items:[{dot:"pro",txt:"鸡蛋 ×2（整只）",note:"~13g 蛋白质"},{dot:"carb",txt:"蒸南瓜 200g",note:"1 拳碳水"},{dot:"pro",txt:"豆浆（无糖）300ml",note:"~10g 蛋白质"}], kcal: "~440", pro: "~24g" },
+      { time:"12:00 午餐", items:[{dot:"pro",txt:"三文鱼 150g（煎/烤）",note:"~32g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"米饭（熟）200g",note:"1.5 拳碳水"},{dot:"veg",txt:"烤蔬菜拼盘 200g+",note:"不限量"},{dot:"fat",txt:"橄榄油 8g",note:"0.8 拇指"}], kcal: "~600", pro: "~36g", swap: "可换：鳕鱼 / 虾仁", tip:"三文鱼富含 n-3，支持睾酮" },
+      { time:"18:30 晚餐", items:[{dot:"pro",txt:"去皮鸡腿肉 150g",note:"~34g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"紫薯 200g",note:"1.5 拳碳水"},{dot:"veg",txt:"蔬菜 200g+",note:"不限量"},{dot:"fat",txt:"坚果 10g",note:"1 拇指"}], kcal: "~560", pro: "~40g"}
+    ]
+  },
+  { label: "周日", type: "rest", kcal: 1900, carb: 175, fat: 60, hand: { pro: 4, carb: 3, fat: 3 },
+    meals: [
+      { time:"08:30 早餐", items:[{dot:"pro",txt:"鸡蛋 ×2（整只）",note:"~13g 蛋白质"},{dot:"carb",txt:"燕麦 30g + 蓝莓 50g",note:"1 拳碳水"},{dot:"pro",txt:"纯牛奶 250ml",note:"~8g 蛋白质"}], kcal: "~450", pro: "~22g" },
+      { time:"12:00 午餐", items:[{dot:"pro",txt:"瘦牛肉 150g",note:"~36g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"米饭（熟）200g",note:"1.5 拳碳水"},{dot:"veg",txt:"蔬菜 200g+",note:"不限量"},{dot:"fat",txt:"橄榄油 8g",note:"0.8 拇指"}], kcal: "~580", pro: "~40g", swap: "可换：鸡胸肉" },
+      { time:"18:00 晚餐", items:[{dot:"pro",txt:"虾仁 150g",note:"~30g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"南瓜/山药 200g",note:"1.5 拳碳水"},{dot:"veg",txt:"蔬菜 200g+",note:"不限量"},{dot:"fat",txt:"坚果 10g",note:"1 拇指"}], kcal: "~520", pro: "~38g", tip:"周末早吃晚餐，不影响周一空腹训练"}
+    ]
+  }
+];
+
+function renderMealDay() {
+  const d = weeklyMeals[currentMealDay];
+  const isTrain = d.type === 'train';
+  document.getElementById('mealTitle').textContent = d.label + ' · ' + (isTrain ? '训练日' : '休息日');
+  const badge = document.getElementById('mealBadge');
+  badge.textContent = isTrain ? '训练日' : '休息日';
+  badge.style.background = isTrain ? 'var(--accent)' : '#0f3460';
+  badge.style.color = '#fff';
+  document.getElementById('mealKcal').textContent = d.kcal;
+
+  const proPct = Math.round(140*4/d.kcal*100);
+  const carbPct = Math.round(d.carb*4/d.kcal*100);
+  const fatPct = Math.round(d.fat*9/d.kcal*100);
+  document.getElementById('macroBars').innerHTML = `
+    <div class="flex justify-between text-xs"><span class="muted">蛋白质 140g</span><span class="text-white font-bold">${proPct}%</span></div>
+    <div class="macro-bar"><div class="macro-fill" style="width:${proPct}%;background:#f43f5e"></div></div>
+    <div class="flex justify-between text-xs"><span class="muted">碳水 ${d.carb}g</span><span class="text-white font-bold">${carbPct}%</span></div>
+    <div class="macro-bar"><div class="macro-fill" style="width:${carbPct}%;background:#f97316"></div></div>
+    <div class="flex justify-between text-xs"><span class="muted">脂肪 ${d.fat}g</span><span class="text-white font-bold">${fatPct}%</span></div>
+    <div class="macro-bar"><div class="macro-fill" style="width:${fatPct}%;background:#eab308"></div></div>
+  `;
+  document.getElementById('handTip').innerHTML = `<span class="font-bold">手掌法 · ${isTrain?'训练日':'休息日'}</span><br>蛋白质 = 掌心 ×${d.hand.pro} · 碳水 = 拳头 ×${d.hand.carb} · 脂肪 = 拇指 ×${d.hand.fat} · 蔬菜 = 双手捧不限量`;
+  let mealsHTML = '';
+  d.meals.forEach(m => {
+    mealsHTML += `<div class="meal-card"><div class="meal-time">${m.time}</div>`;
+    m.items.forEach(item => { mealsHTML += `<div class="meal-item"><span class="meal-dot ${item.dot}"></span><span>${item.txt}<span class="text-xs muted ml-1">${item.note}</span></span></div>`; });
+    if (m.kcal) mealsHTML += `<div class="text-xs muted mt-2" style="color:#334155;">${m.kcal} kcal · ${m.pro}${m.swap?' · '+m.swap:''}${m.tip?' · '+m.tip:''}</div>`;
+    mealsHTML += `</div>`;
+  });
+  document.getElementById('dayMeals').innerHTML = mealsHTML;
+  const carbRange = isTrain ? '~235' : '~165';
+  document.getElementById('daySummary').innerHTML = `
+    <div class="flex justify-between items-center mb-2"><span class="text-sm font-bold text-white">全天汇总</span><span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:${isTrain?'var(--accent)':'#0f3460'};color:#fff;">${isTrain?'训练日 4 餐':'休息日 3 餐'}</span></div>
+    <div class="grid grid-cols-4 gap-2 text-center text-xs">
+      <div><div class="text-lg font-bold accent-text">${d.kcal}</div><span class="muted">kcal</span></div>
+      <div><div class="text-lg font-bold text-orange-400">140</div><span class="muted">蛋白质 g</span></div>
+      <div><div class="text-lg font-bold text-amber-400">${carbRange}</div><span class="muted">碳水 g</span></div>
+      <div><div class="text-lg font-bold text-yellow-400">~${d.fat}</div><span class="muted">脂肪 g</span></div>
+    </div>
+    <div class="text-xs muted mt-3 pt-3 border-t border-[#1e293b] leading-relaxed">
+      <span class="text-yellow-400 font-bold">Tips：</span>① 蛋白质先吃够 140g，然后填碳水和蔬菜<br>② 肉类可水煮、少油煎、空气炸锅。调味用黑胡椒、蒜、醋、低钠酱油<br>③ 橄榄油不要高温炒（冒烟破坏营养），凉拌或出锅前淋<br>④ ${isTrain ? '训练日碳水 4 拳，练后高 GI 碳水（米饭）加速肌糖原恢复' : '休息日碳水 3 拳，晚餐碳水用红薯/南瓜等低 GI 来源'}
+    </div>`;
+  renderDaySelector();
+}
+
+function renderDaySelector() {
+  let html = '';
+  weeklyMeals.forEach((d,i) => {
+    const active = i === currentMealDay;
+    const isTrain = d.type === 'train';
+    html += `<button class="day-tab${active?' active':''}" style="${active?'':'border-color:'+(isTrain?'rgba(244,63,94,0.3)':'rgba(15,52,96,0.5)')+';'}"
+              onclick="currentMealDay=${i};renderMealDay();">${d.label}<br><span class="text-xs" style="color:${isTrain?'var(--accent)':'#3b82f6'}">${isTrain?'训练':'休息'}</span></button>`;
+  });
+  document.getElementById('daySelector').innerHTML = html;
+}
+
+// ── 全局初始化 ──
+loadData();
+renderExercises();
+renderDaySelector();
+</script>
+</body>
+</html>

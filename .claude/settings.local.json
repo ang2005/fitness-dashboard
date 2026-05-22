@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 epub_reader.py \"/d/desktop/曲黎敏精讲黄帝内经系列（套装1-3册） \\(曲黎敏\\) \\(Z-Library\\).epub\" -l)",
+      "Bash(/c/Users/admin/AppData/Local/Microsoft/WindowsApps/python3 --version)",
+      "Bash(/c/Users/admin/AppData/Local/Microsoft/WindowsApps/python --version)",
+      "Bash(where python *)",
+      "Bash(ls /c/Program*/Python*)",
+      "Read(//c/Users/admin/AppData/Local/Programs/**)",
+      "Bash(pandoc \"/d/desktop/曲黎敏精讲黄帝内经系列（套装1-3册） \\(曲黎敏\\) \\(Z-Library\\).epub\" -t plain --wrap=none)",
+      "Bash(bash epub_read.sh \"/d/desktop/福格行为模型 \\(B.J.福格\\) \\(Z-Library\\).epub\" -o /tmp/fogg_full.txt)",
+      "Read(//tmp/**)",
+      "Bash(pandoc --list-input-formats)",
+      "Bash(pip3 list *)",
+      "Bash(choco --version)",
+      "Bash(winget --version)",
+      "Bash(scoop --version)",
+      "Read(//c/Program Files/**)",
+      "Read(//c/Program Files \\(x86\\)/**)",
+      "Bash(ebook-convert --version)",
+      "Bash(npm --version)",
+      "Bash(scoop list *)",
+      "Bash(curl --version)",
+      "Bash(wget --version)",
+      "Bash(/c/Users/admin/AppData/Local/Microsoft/WindowsApps/python.exe --version)",
+      "Bash(cmd.exe /c \"python --version\")",
+      "Read(//c/msys64/mingw64/**)",
+      "Bash(pacman --version)",
+      "Bash(pacman -Ss python)",
+      "Bash(curl -L -o /tmp/calibre-portable.zip \"https://calibre-ebook.com/download_portable\")",
+      "Bash(bash epub_read.sh \"Li Liang Xun Lian Tao Zhuang - Ma Ke _Rui Bi Tuo.epub\" -o /tmp/strength_training.txt)",
+      "WebFetch(domain:lobehub.com)",
+      "WebSearch",
+      "Bash(curl -sL \"https://lobehub.com/skills/skill.md\")",
+      "Bash(curl -sL \"https://raw.githubusercontent.com/lobehub/lobehub/main/skills/skill.md\")",
+      "Bash(curl *)",
+      "Bash(winget install *)"
+    ]
+  }
+}
