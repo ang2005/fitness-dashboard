@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>七部曲日课 · 走向光明</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0a0c;
+    --card: #14141a;
+    --card-hover: #1a1a24;
+    --accent: #f59e0b;
+    --accent2: #d4a574;
+    --gold: #eab308;
+    --green: #22c55e;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --border: #1e293b;
+    --input-bg: #0f0f1a;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'SF Pro Display', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    margin: 0; padding: 0; user-select: none; -webkit-user-select: none; overscroll-behavior: none;
+  }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 14px; margin-bottom: 10px; transition: border-color 0.2s, background 0.2s;
+  }
+  .card.done { border-color: var(--green); border-width: 1.5px; background: rgba(34,197,94,0.04); }
+  .btn-accent {
+    background: var(--accent); color: #0a0a0c; border: none; border-radius: 10px;
+    padding: 12px 20px; font-weight: 700; font-size: 15px; cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.2s; box-shadow: 0 0 20px rgba(245,158,11,0.25);
+  }
+  .btn-accent:active { transform: scale(0.96); }
+  .btn-ghost {
+    background: transparent; border: 1px solid var(--border); color: var(--muted);
+    border-radius: 10px; padding: 10px 16px; font-weight: 600; font-size: 13px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--text); }
+  .btn-ghost.active { border-color: var(--accent); color: var(--accent); background: rgba(245,158,11,0.08); }
+
+  .mode-tab {
+    padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--card); color: var(--muted); font-weight: 600; font-size: 13px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .mode-tab.active { background: var(--accent); border-color: var(--accent); color: #0a0a0c; }
+
+  .step-toggle {
+    width: 44px; height: 44px; border-radius: 50%; border: 2.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; cursor: pointer; transition: all 0.2s; flex-shrink: 0;
+  }
+  .step-toggle.done { background: var(--green); border-color: var(--green); }
+
+  input[type="text"], textarea {
+    background: var(--input-bg); border: 1px solid var(--border); color: var(--text);
+    border-radius: 8px; padding: 8px 10px; width: 100%; font-size: 14px;
+    font-family: inherit; resize: vertical;
+  }
+  input[type="text"]:focus, textarea:focus { outline: none; border-color: var(--accent); }
+  input[type="file"] { display: none; }
+
+  .progress-bar { height: 6px; border-radius: 3px; background: var(--border); overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--accent); transition: width 0.4s ease; border-radius: 3px; }
+
+  .toast {
+    position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+    background: var(--accent); color: #0a0a0c; padding: 10px 24px;
+    border-radius: 24px; font-weight: 700; font-size: 14px;
+    z-index: 100; transition: transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+  }
+  .toast.hidden { transform: translateX(-50%) translateY(-120px); }
+
+  .cal-cell {
+    aspect-ratio: 1; border-radius: 8px; display: flex; align-items: center;
+    justify-content: center; font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: all 0.15s; border: 1.5px solid transparent; position: relative;
+  }
+  .cal-cell.today { border-color: var(--accent); }
+  .cal-cell.high { background: rgba(245,158,11,0.35); color: #fff; }
+  .cal-cell.mid  { background: rgba(245,158,11,0.15); color: var(--text); }
+  .cal-cell.low  { background: rgba(100,116,139,0.12); color: var(--muted); }
+  .cal-cell.none { color: var(--muted); }
+  .cal-cell:active { transform: scale(0.9); }
+
+  .stat-num { font-size: 28px; font-weight: 800; line-height: 1; }
+  .stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+</style>
+</head>
+<body>
+<div class="max-w-lg mx-auto px-4 py-5">
+
+  <!-- Mode Tabs -->
+  <div class="flex gap-2 mb-5">
+    <button class="mode-tab active" onclick="switchMode('daily')">日课</button>
+    <button class="mode-tab" onclick="switchMode('history')">历史</button>
+    <button class="mode-tab" onclick="switchMode('export')">导出</button>
+  </div>
+
+  <!-- Daily Section -->
+  <div id="dailySection">
+    <!-- Header -->
+    <div class="text-center mb-5">
+      <div class="text-xs text-[var(--muted)] uppercase tracking-wider mb-1">戒色七部曲日课</div>
+      <div class="text-2xl font-extrabold" id="dateDisplay"></div>
+      <div class="text-sm text-[var(--muted)] mt-1" id="weekdayDisplay"></div>
+    </div>
+
+    <!-- Version Badge -->
+    <div class="text-center mb-4">
+      <span class="text-xs text-[var(--muted)]">别行版 · 持咒念佛</span>
+    </div>
+
+    <!-- Progress -->
+    <div class="mb-4">
+      <div class="flex justify-between items-end mb-2">
+        <span class="text-sm text-[var(--muted)]">今日进度</span>
+        <span class="text-sm font-bold" id="progressText">0/7</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+
+    <!-- Step Cards -->
+    <div id="stepsContainer"></div>
+
+    <!-- Overall Note -->
+    <div class="card">
+      <div class="text-xs text-[var(--muted)] uppercase tracking-wide mb-2">今日感言</div>
+      <textarea id="overallNote" rows="2" placeholder="今天的整体感受、收获或反思..."></textarea>
+    </div>
+
+    <!-- Save Button -->
+    <button class="btn-accent w-full py-3 text-base" onclick="saveRecord()">保存今日日课</button>
+    <div class="text-center text-xs text-[var(--muted)] mt-2" id="saveHint">每天睡前填写，养成好习惯</div>
+  </div>
+
+  <!-- History Section -->
+  <div id="historySection" style="display:none;">
+    <!-- Stats -->
+    <div class="grid grid-cols-4 gap-2 mb-4">
+      <div class="card text-center py-3">
+        <div class="stat-num text-[var(--accent)]" id="statStreak">0</div>
+        <div class="stat-label">连续天数</div>
+      </div>
+      <div class="card text-center py-3">
+        <div class="stat-num text-[var(--accent2)]" id="statTotal">0</div>
+        <div class="stat-label">累计天数</div>
+      </div>
+      <div class="card text-center py-3">
+        <div class="stat-num" id="statWeek" style="color:var(--gold)">0</div>
+        <div class="stat-label">本周</div>
+      </div>
+      <div class="card text-center py-3">
+        <div class="stat-num" id="statMonth" style="color:var(--green)">0</div>
+        <div class="stat-label">本月</div>
+      </div>
+    </div>
+
+    <!-- Calendar -->
+    <div class="card">
+      <div class="flex items-center justify-between mb-3">
+        <button class="btn-ghost text-xs px-3 py-1" onclick="prevMonth()">← 上月</button>
+        <span class="font-bold text-sm" id="calTitle"></span>
+        <button class="btn-ghost text-xs px-3 py-1" onclick="nextMonth()">下月 →</button>
+      </div>
+      <div class="grid grid-cols-7 gap-1 text-center text-xs text-[var(--muted)] mb-2">
+        <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+      </div>
+      <div class="grid grid-cols-7 gap-1" id="calGrid"></div>
+      <div class="text-xs text-[var(--muted)] mt-3 text-center" id="selectedDayInfo"></div>
+    </div>
+
+    <!-- Recent Records -->
+    <div class="mt-4">
+      <div class="text-xs text-[var(--muted)] uppercase tracking-wide mb-2">最近记录</div>
+      <div id="recentList"></div>
+    </div>
+  </div>
+
+  <!-- Export Section -->
+  <div id="exportSection" style="display:none;">
+    <div class="card">
+      <div class="text-sm font-bold mb-3">数据导出</div>
+      <p class="text-xs text-[var(--muted)] mb-4">将全部日课记录导出为文件，支持 Excel（推荐）和 JSON 格式。</p>
+      <button class="btn-accent w-full mb-3" onclick="exportExcel()">导出 Excel (.xlsx)</button>
+      <button class="btn-ghost w-full" onclick="exportJSON()">导出 JSON (.json)</button>
+    </div>
+
+    <div class="card mt-3">
+      <div class="text-sm font-bold mb-3">数据导入</div>
+      <p class="text-xs text-[var(--muted)] mb-4">导入之前导出的 JSON 文件，与现有记录合并（按日期去重）。</p>
+      <button class="btn-ghost w-full" onclick="document.getElementById('importFile').click()">导入 JSON 文件</button>
+      <input type="file" id="importFile" accept=".json" onchange="importJSON(this)">
+      <div class="text-xs text-[var(--muted)] mt-2 text-center" id="importResult"></div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="text-sm font-bold mb-3 text-[var(--accent)]">关于七部曲</div>
+      <p class="text-xs text-[var(--muted)] leading-relaxed">
+        戒色七部曲源自《走向光明》（日日知非著），是"系统戒色论"的实战方法体系。日课七条：早睡、健身、读书、持诵、行善、奋斗、反省。核心信念：彻底告别过去，活出全新生命。
+      </p>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast hidden" id="toast"></div>
+</div>
+
+<script>
+// ========== DATA ==========
+const stepsBase = [
+  { id: 'zaoShui',  name: '早睡',   icon: '🌙', desc: '晚10:00前睡觉，早5-6点起床',           hint: '几点睡的？' },
+  { id: 'jianShen', name: '健身',   icon: '🏃', desc: '早起锻炼至少半小时',                   hint: '做了什么运动？多久？' },
+  { id: 'duShu',    name: '读书',   icon: '📖', desc: '阅读戒色修身好文好书',                 hint: '读了什么？多久？' },
+  { id: 'chiSong',  name: '持诵',   icon: '📿', desc: '念诵观音圣号2000-5000遍或准提咒600-2000遍', hint: '念了多少？' },
+  { id: 'xingShan', name: '行善',   icon: '❤️', desc: '日行一善，孝养父母',                   hint: '做了什么善事？' },
+  { id: 'fenDou',   name: '奋斗',   icon: '🎯', desc: '为人生理想努力奋斗',                   hint: '今天为理想做了什么？' },
+  { id: 'fanXing',  name: '反省',   icon: '📝', desc: '写日课总结日记，反省修身',              hint: '今天的反思？' },
+];
+
+// ========== STATE ==========
+let today = new Date().toISOString().split('T')[0];
+let currentSteps = {};
+let overallNote = '';
+
+let history = [];
+let calendarYear, calendarMonth;
+let selectedCalDate = null;
+
+// ========== INIT ==========
+function initSteps() {
+  const defaults = {};
+  stepsBase.forEach(s => { defaults[s.id] = { done: false, note: '' }; });
+  return defaults;
+}
+
+function loadData() {
+  const saved = localStorage.getItem('qiqu_dashboard');
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed.date === today) {
+        currentSteps = parsed.steps;
+        overallNote = parsed.overallNote || '';
+      } else {
+        currentSteps = initSteps();
+        overallNote = '';
+      }
+    } catch(e) { currentSteps = initSteps(); }
+  } else {
+    currentSteps = initSteps();
+  }
+
+  const hist = localStorage.getItem('qiqu_history');
+  if (hist) {
+    try { history = JSON.parse(hist); } catch(e) { history = []; }
+  }
+
+  const now = new Date();
+  calendarYear = now.getFullYear();
+  calendarMonth = now.getMonth() + 1;
+}
+
+function saveDashboard() {
+  localStorage.setItem('qiqu_dashboard', JSON.stringify({
+    date: today,
+    steps: currentSteps,
+    overallNote: overallNote
+  }));
+}
+
+function saveHistory() {
+  localStorage.setItem('qiqu_history', JSON.stringify(history));
+}
+
+// ========== DAILY MODE ==========
+function getSteps() {
+  return stepsBase;
+}
+
+function toggleStep(stepId) {
+  currentSteps[stepId].done = !currentSteps[stepId].done;
+  updateProgress();
+  renderStepCard(stepId);
+}
+
+function updateStepNote(stepId, value) {
+  currentSteps[stepId].note = value;
+}
+
+function updateProgress() {
+  const done = stepsBase.filter(s => currentSteps[s.id].done).length;
+  const pct = Math.round(done / 7 * 100);
+  document.getElementById('progressText').textContent = `${done}/7`;
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function renderStepCard(stepId) {
+  const step = stepsBase.find(s => s.id === stepId);
+  const idx = stepsBase.findIndex(s => s.id === stepId);
+  const cs = currentSteps[stepId];
+  const card = document.getElementById(`stepCard-${stepId}`);
+  if (!card) return;
+  card.className = 'card' + (cs.done ? ' done' : '');
+  card.querySelector('.step-toggle').className = 'step-toggle' + (cs.done ? ' done' : '');
+  card.querySelector('.step-toggle').textContent = cs.done ? '✓' : (idx + 1);
+}
+
+function renderDaily() {
+  // Date header
+  const d = new Date(today + 'T00:00:00');
+  const weekdays = ['日','一','二','三','四','五','六'];
+  document.getElementById('dateDisplay').textContent = today;
+  document.getElementById('weekdayDisplay').textContent = `星期${weekdays[d.getDay()]}`;
+
+  // Steps
+  let html = '';
+  stepsBase.forEach((step, i) => {
+    const cs = currentSteps[step.id];
+    html += `
+    <div class="card${cs.done ? ' done' : ''}" id="stepCard-${step.id}">
+      <div class="flex items-center gap-3">
+        <div class="step-toggle${cs.done ? ' done' : ''}" onclick="toggleStep('${step.id}')">${cs.done ? '✓' : (i + 1)}</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="text-base">${step.icon}</span>
+            <span class="font-bold text-sm">${step.name}</span>
+          </div>
+          <div class="text-xs text-[var(--muted)] mt-0.5">${step.desc}</div>
+          <input type="text" class="mt-2 text-xs" placeholder="${step.hint}" value="${escapeHtml(cs.note || '')}"
+            oninput="updateStepNote('${step.id}', this.value)" onchange="updateStepNote('${step.id}', this.value)">
+        </div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('stepsContainer').innerHTML = html;
+  document.getElementById('overallNote').value = overallNote;
+  updateProgress();
+}
+
+function saveRecord() {
+  const done = stepsBase.filter(s => currentSteps[s.id].done).length;
+  overallNote = document.getElementById('overallNote').value;
+
+  if (done === 0) {
+    showToast('请至少完成一条再保存');
+    return;
+  }
+
+  const record = {
+    date: today,
+    timestamp: new Date().toISOString(),
+    steps: JSON.parse(JSON.stringify(currentSteps)),
+    completedCount: done,
+    overallNote: overallNote
+  };
+
+  // Upsert today's record in history
+  const existingIdx = history.findIndex(r => r.date === today);
+  if (existingIdx >= 0) {
+    history[existingIdx] = record;
+  } else {
+    history.push(record);
+  }
+  history.sort((a, b) => b.date.localeCompare(a.date));
+
+  saveDashboard();
+  saveHistory();
+  showToast(`已保存 · 完成 ${done}/7 条`);
+  const now = new Date();
+  document.getElementById('saveHint').textContent = `上次保存：${now.toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'})}`;
+}
+
+// ========== HISTORY MODE ==========
+function getRecordByDate(dateStr) {
+  return history.find(r => r.date === dateStr);
+}
+
+function computeStats() {
+  if (!history.length) return { streak: 0, total: 0, week: 0, month: 0, longest: 0 };
+
+  const total = history.length;
+
+  // Consecutive streak (from today backwards)
+  let streak = 0;
+  const d = new Date(today + 'T00:00:00');
+  while (true) {
+    const ds = d.toISOString().split('T')[0];
+    const rec = history.find(r => r.date === ds);
+    if (rec && rec.completedCount >= 1) { streak++; d.setDate(d.getDate() - 1); }
+    else break;
+  }
+
+  // Longest streak
+  const dates = new Set(history.filter(r => r.completedCount >= 1).map(r => r.date));
+  let longest = 0;
+  if (dates.size > 0) {
+    const sorted = [...dates].sort();
+    let run = 1;
+    for (let i = 1; i < sorted.length; i++) {
+      const prev = new Date(sorted[i-1] + 'T00:00:00');
+      const curr = new Date(sorted[i] + 'T00:00:00');
+      if ((curr - prev) === 86400000) { run++; }
+      else { longest = Math.max(longest, run); run = 1; }
+    }
+    longest = Math.max(longest, run);
+  }
+
+  // This week (Mon-Sun)
+  const now = new Date(today + 'T00:00:00');
+  const dayOfWeek = now.getDay();
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const monday = new Date(now); monday.setDate(now.getDate() + mondayOffset);
+  let week = 0;
+  for (let i = 0; i < 7; i++) {
+    const ds = new Date(monday); ds.setDate(monday.getDate() + i);
+    const dsStr = ds.toISOString().split('T')[0];
+    if (history.find(r => r.date === dsStr && r.completedCount >= 1)) week++;
+  }
+
+  // This month
+  const month = history.filter(r => {
+    const rd = new Date(r.date + 'T00:00:00');
+    return rd.getFullYear() === now.getFullYear() && rd.getMonth() === now.getMonth() && r.completedCount >= 1;
+  }).length;
+
+  return { streak, total, week, month, longest };
+}
+
+function renderCalendar() {
+  const year = calendarYear, month = calendarMonth;
+  document.getElementById('calTitle').textContent = `${year}年 ${month}月`;
+
+  const firstDay = new Date(year, month - 1, 1);
+  const lastDay = new Date(year, month, 0);
+  const daysInMonth = lastDay.getDate();
+  const startDow = firstDay.getDay(); // 0=Sun
+
+  let html = '';
+  // Empty cells before first day
+  for (let i = 0; i < startDow; i++) {
+    html += '<div></div>';
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const rec = history.find(r => r.date === ds);
+    let cls = 'cal-cell ';
+    if (ds === today) cls += 'today ';
+    if (rec) {
+      if (rec.completedCount >= 6) cls += 'high';
+      else if (rec.completedCount >= 3) cls += 'mid';
+      else cls += 'low';
+    } else {
+      cls += 'none';
+    }
+    if (ds === selectedCalDate) cls += ' today';
+    html += `<div class="${cls}" onclick="selectCalDate('${ds}')">${d}</div>`;
+  }
+
+  document.getElementById('calGrid').innerHTML = html;
+
+  if (selectedCalDate) {
+    showCalDateInfo(selectedCalDate);
+  } else {
+    document.getElementById('selectedDayInfo').textContent = '点击日期查看详情';
+  }
+}
+
+function selectCalDate(ds) {
+  selectedCalDate = ds;
+  renderCalendar();
+  showCalDateInfo(ds);
+}
+
+function showCalDateInfo(ds) {
+  const rec = history.find(r => r.date === ds);
+  if (!rec) {
+    document.getElementById('selectedDayInfo').textContent = `${ds} — 无记录`;
+    return;
+  }
+  const steps = getSteps();
+  const doneNames = steps.filter(s => rec.steps[s.id] && rec.steps[s.id].done).map(s => s.name);
+  document.getElementById('selectedDayInfo').innerHTML =
+    `${ds} · 完成 ${rec.completedCount}/7<br><span class="text-xs">${doneNames.join('、') || '无'}</span>`;
+}
+
+function prevMonth() {
+  if (calendarMonth === 1) { calendarMonth = 12; calendarYear--; }
+  else calendarMonth--;
+  selectedCalDate = null;
+  renderCalendar();
+}
+
+function nextMonth() {
+  if (calendarMonth === 12) { calendarMonth = 1; calendarYear++; }
+  else calendarMonth++;
+  selectedCalDate = null;
+  renderCalendar();
+}
+
+function renderRecentList() {
+  if (history.length === 0) {
+    document.getElementById('recentList').innerHTML = '<div class="text-xs text-[var(--muted)] text-center py-4">暂无记录</div>';
+    return;
+  }
+  const steps = getSteps();
+  const recent = history.slice(0, 30);
+  let html = '';
+  recent.forEach(r => {
+    const doneNames = steps.filter(s => r.steps[s.id] && r.steps[s.id].done).map(s => s.name);
+    const d = new Date(r.date + 'T00:00:00');
+    const weekdays = ['日','一','二','三','四','五','六'];
+    html += `
+    <div class="card py-2 px-3 cursor-pointer" onclick="selectCalDate('${r.date}'); switchMode('history'); renderCalendar();">
+      <div class="flex justify-between items-center">
+        <div>
+          <span class="text-sm font-bold">${r.date}</span>
+          <span class="text-xs text-[var(--muted)] ml-2">周${weekdays[d.getDay()]}</span>
+        </div>
+        <span class="text-sm font-bold ${r.completedCount >= 6 ? 'text-[var(--green)]' : 'text-[var(--accent)]'}">${r.completedCount}/7</span>
+      </div>
+      ${doneNames.length ? `<div class="text-xs text-[var(--muted)] mt-1">${doneNames.join('、')}</div>` : ''}
+      ${r.overallNote ? `<div class="text-xs text-[var(--muted)] mt-1 italic">${escapeHtml(r.overallNote.substring(0, 60))}${r.overallNote.length > 60 ? '...' : ''}</div>` : ''}
+    </div>`;
+  });
+  document.getElementById('recentList').innerHTML = html;
+}
+
+function renderHistory() {
+  const stats = computeStats();
+  document.getElementById('statStreak').textContent = stats.streak;
+  document.getElementById('statTotal').textContent = stats.total;
+  document.getElementById('statWeek').textContent = stats.week;
+  document.getElementById('statMonth').textContent = stats.month;
+  renderCalendar();
+  renderRecentList();
+}
+
+// ========== MODE SWITCH ==========
+function switchMode(mode) {
+  document.querySelectorAll('.mode-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.mode-tab').forEach(b => {
+    if ((mode === 'daily' && b.textContent === '日课') ||
+        (mode === 'history' && b.textContent === '历史') ||
+        (mode === 'export' && b.textContent === '导出')) {
+      b.classList.add('active');
+    }
+  });
+  document.getElementById('dailySection').style.display = mode === 'daily' ? 'block' : 'none';
+  document.getElementById('historySection').style.display = mode === 'history' ? 'block' : 'none';
+  document.getElementById('exportSection').style.display = mode === 'export' ? 'block' : 'none';
+  if (mode === 'history') renderHistory();
+  if (mode === 'daily') renderDaily();
+}
+
+// ========== EXPORT ==========
+function exportExcel() {
+  if (typeof XLSX === 'undefined') { exportJSON(); return; }
+
+  const wb = XLSX.utils.book_new();
+  const steps = getSteps();
+
+  // Sheet 1: 日课明细
+  const detailRows = [['日期', '早睡', '健身', '读书', '持诵', '行善', '奋斗', '反省', '完成数', '早睡备注', '健身备注', '读书备注', '持诵备注', '行善备注', '奋斗备注', '反省备注', '总体感言']];
+  history.forEach(r => {
+    const row = [
+      r.date,
+      r.steps.zaoShui?.done ? '✓' : '✗',
+      r.steps.jianShen?.done ? '✓' : '✗',
+      r.steps.duShu?.done ? '✓' : '✗',
+      r.steps.chiSong?.done ? '✓' : '✗',
+      r.steps.xingShan?.done ? '✓' : '✗',
+      r.steps.fenDou?.done ? '✓' : '✗',
+      r.steps.fanXing?.done ? '✓' : '✗',
+      r.completedCount,
+      r.steps.zaoShui?.note || '', r.steps.jianShen?.note || '', r.steps.duShu?.note || '',
+      r.steps.chiSong?.note || '', r.steps.xingShan?.note || '', r.steps.fenDou?.note || '',
+      r.steps.fanXing?.note || '', r.overallNote || ''
+    ];
+    detailRows.push(row);
+  });
+  const ws1 = XLSX.utils.aoa_to_sheet(detailRows);
+  ws1['!cols'] = [{wch:12},{wch:6},{wch:6},{wch:6},{wch:6},{wch:6},{wch:6},{wch:6},{wch:6},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:20}];
+  XLSX.utils.book_append_sheet(wb, ws1, '日课明细');
+
+  // Sheet 2: 每日汇总
+  const summaryRows = [['日期', '完成数', '完成率']];
+  history.forEach(r => {
+    summaryRows.push([r.date, r.completedCount, Math.round(r.completedCount/7*100) + '%']);
+  });
+  const ws2 = XLSX.utils.aoa_to_sheet(summaryRows);
+  ws2['!cols'] = [{wch:12},{wch:8},{wch:8}];
+  XLSX.utils.book_append_sheet(wb, ws2, '每日汇总');
+
+  // Sheet 3: 统计概览
+  const stats = computeStats();
+  const statRows = [
+    ['指标', '数值'],
+    ['总记录天数', stats.total],
+    ['当前连续天数', stats.streak],
+    ['最长连续天数', stats.longest],
+    ['本周完成天数', stats.week],
+    ['本月完成天数', stats.month],
+    ['导出时间', new Date().toLocaleString('zh-CN')],
+  ];
+  const ws3 = XLSX.utils.aoa_to_sheet(statRows);
+  ws3['!cols'] = [{wch:16},{wch:12}];
+  XLSX.utils.book_append_sheet(wb, ws3, '统计概览');
+
+  // Sheet 4: 七条分项统计
+  const itemRows = [['条目', '总完成次数', '总记录天数', '完成率']];
+  steps.forEach(s => {
+    const done = history.filter(r => r.steps[s.id]?.done).length;
+    const total = history.length;
+    itemRows.push([s.name, done, total, total > 0 ? Math.round(done/total*100) + '%' : '0%']);
+  });
+  const ws4 = XLSX.utils.aoa_to_sheet(itemRows);
+  ws4['!cols'] = [{wch:10},{wch:12},{wch:12},{wch:8}];
+  XLSX.utils.book_append_sheet(wb, ws4, '分项统计');
+
+  const filename = `七部曲日课-${today}.xlsx`;
+  XLSX.writeFile(wb, filename);
+  showToast('Excel 已导出');
+}
+
+function exportJSON() {
+  const data = JSON.stringify(history, null, 2);
+  const blob = new Blob([data], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `七部曲日课-${today}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('JSON 已导出');
+}
+
+function importJSON(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!Array.isArray(imported)) throw new Error('格式错误');
+      const existingDates = new Set(history.map(r => r.date));
+      const newRecords = imported.filter(r => r.date && !existingDates.has(r.date));
+      history = history.concat(newRecords);
+      history.sort((a, b) => b.date.localeCompare(a.date));
+      saveHistory();
+      document.getElementById('importResult').textContent = `导入了 ${newRecords.length} 条新记录，共 ${history.length} 条`;
+      showToast(`成功导入 ${newRecords.length} 条`);
+    } catch(err) {
+      document.getElementById('importResult').textContent = '导入失败：文件格式不正确';
+    }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+// ========== TOAST ==========
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.remove('hidden');
+  clearTimeout(t._timeout);
+  t._timeout = setTimeout(() => t.classList.add('hidden'), 2000);
+}
+
+// ========== BOOT ==========
+loadData();
+renderDaily();
+</script>
+</body>
+</html>
