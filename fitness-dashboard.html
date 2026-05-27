@@ -203,6 +203,7 @@
       <span class="text-white">龙之</span><span class="accent-text">力量看板</span>
     </h1>
     <p class="text-xs muted mt-1" id="headerSub">力量 · 速度 · 实用</p>
+    <p class="text-xs mt-0.5" style="color:#4ade80;" id="goalBanner">目标：3个月减至 14% 体脂 · 77kg</p>
   </div>
   <div class="relative w-20 h-20">
     <svg class="progress-ring" width="80" height="80" viewBox="0 0 80 80">
@@ -297,7 +298,7 @@
     </div>
     <div class="grid grid-cols-3 gap-3 text-center">
       <div><div class="text-2xl font-extrabold accent-text" id="mealKcal">2100</div><div class="text-xs muted">目标 kcal</div></div>
-      <div><div class="text-2xl font-extrabold text-orange-400">140</div><div class="text-xs muted">蛋白质 g</div></div>
+      <div><div class="text-2xl font-extrabold text-orange-400" id="mealProtein">150</div><div class="text-xs muted">蛋白质 g</div></div>
       <div><div class="text-2xl font-extrabold text-yellow-400">500+</div><div class="text-xs muted">蔬菜 g</div></div>
     </div>
     <div class="mt-4 space-y-2" id="macroBars"></div>
@@ -1066,7 +1067,7 @@ function switchMode(mode) {
 }
 
 const weeklyMeals = [
-  { label: "周一", type: "train", kcal: 2100, carb: 235, fat: 58, hand: { pro: 4, carb: 4, fat: 3 },
+  { label: "周一", type: "train", kcal: 2150, carb: 240, fat: 58, hand: { pro: 4, carb: 4, fat: 3 },
     meals: [
       { time:"08:00 早餐", items:[{dot:"pro",txt:"鸡蛋 ×2（整只）",note:"~13g 蛋白质"},{dot:"carb",txt:"燕麦 40g 或全麦面包 2 片",note:"1 拳碳水"},{dot:"pro",txt:"纯牛奶 250ml",note:"~8g 蛋白质"},{dot:"fat",txt:"核桃/杏仁 5g",note:"0.5 拇指"}], kcal: "~500", pro: "~25g" },
       { time:"12:00 午餐", items:[{dot:"pro",txt:"鸡胸肉 150g",note:"~35g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"米饭（熟）300g",note:"2 拳碳水"},{dot:"veg",txt:"西兰花 / 绿叶菜 200g+",note:"不限量"},{dot:"fat",txt:"橄榄油 10g（1 汤匙）",note:"1 拇指"}], kcal: "~650", pro: "~40g", swap: "可换：瘦牛肉 / 虾仁" },
@@ -1074,14 +1075,14 @@ const weeklyMeals = [
       { time:"19:00 晚餐", items:[{dot:"pro",txt:"三文鱼 / 鳕鱼 150g",note:"~32g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"红薯 200g",note:"1.5 拳碳水"},{dot:"veg",txt:"蔬菜 200g+（任意种类）",note:"不限量"},{dot:"fat",txt:"坚果 10g（核桃/松子）",note:"1 拇指"}], kcal: "~550", pro: "~40g", tip:"睡前 1-3h 蛋白质对增肌减脂特别重要" }
     ]
   },
-  { label: "周二", type: "rest", kcal: 1850, carb: 165, fat: 60, hand: { pro: 4, carb: 3, fat: 3 },
+  { label: "周二", type: "rest", kcal: 1850, carb: 182, fat: 58, hand: { pro: 4, carb: 3, fat: 3 },
     meals: [
       { time:"08:00 早餐", items:[{dot:"pro",txt:"鸡蛋 ×2（整只）",note:"~13g 蛋白质"},{dot:"carb",txt:"全麦面包 1 片 + 蒸玉米半根",note:"1 拳碳水"},{dot:"pro",txt:"纯牛奶 250ml",note:"~8g 蛋白质"}], kcal: "~450", pro: "~22g" },
       { time:"12:00 午餐", items:[{dot:"pro",txt:"瘦牛肉 150g（少油煎/卤）",note:"~36g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"米饭（熟）200g",note:"1.5 拳碳水"},{dot:"veg",txt:"青椒/洋葱/蔬菜 200g+",note:"搭配炒不限量"},{dot:"fat",txt:"橄榄油 8g",note:"0.8 拇指"}], kcal: "~580", pro: "~40g", swap: "可换：鸡胸肉 / 虾仁" },
       { time:"19:00 晚餐", items:[{dot:"pro",txt:"虾仁 150g（清炒/白灼）",note:"~30g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"紫薯/土豆 200g",note:"1.5 拳碳水"},{dot:"veg",txt:"蔬菜 200g+",note:"不限量"},{dot:"fat",txt:"坚果 10g",note:"1 拇指"}], kcal: "~520", pro: "~38g", tip:"休息日碳水略低，蛋白质不减"}
     ]
   },
-  { label: "周三", type: "train", kcal: 2100, carb: 235, fat: 58, hand: { pro: 4, carb: 4, fat: 3 },
+  { label: "周三", type: "train", kcal: 2150, carb: 240, fat: 58, hand: { pro: 4, carb: 4, fat: 3 },
     meals: [
       { time:"08:00 早餐", items:[{dot:"pro",txt:"鸡蛋 ×2（整只）",note:"~13g 蛋白质"},{dot:"carb",txt:"燕麦 40g",note:"1 拳碳水"},{dot:"pro",txt:"豆浆（无糖）300ml",note:"~10g 蛋白质"},{dot:"fat",txt:"核桃 5g",note:"0.5 拇指"}], kcal: "~500", pro: "~25g" },
       { time:"12:00 午餐", items:[{dot:"pro",txt:"去皮鸡腿肉 150g",note:"~34g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"米饭（熟）300g",note:"2 拳碳水"},{dot:"veg",txt:"西兰花 / 菠菜 200g+",note:"不限量"},{dot:"fat",txt:"橄榄油 10g",note:"1 拇指"}], kcal: "~650", pro: "~40g", swap: "可换：鸡胸肉 / 鱼片" },
@@ -1089,14 +1090,14 @@ const weeklyMeals = [
       { time:"19:00 晚餐", items:[{dot:"pro",txt:"鳕鱼 / 龙利鱼 150g（清蒸）",note:"~30g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"杂粮饭 200g",note:"1.5 拳碳水"},{dot:"veg",txt:"蔬菜 200g+",note:"不限量"},{dot:"fat",txt:"坚果 10g",note:"1 拇指"}], kcal: "~550", pro: "~38g", tip:"鱼肉+杂粮组合，消化慢、饱腹感强"}
     ]
   },
-  { label: "周四", type: "rest", kcal: 1850, carb: 165, fat: 60, hand: { pro: 4, carb: 3, fat: 3 },
+  { label: "周四", type: "rest", kcal: 1850, carb: 182, fat: 58, hand: { pro: 4, carb: 3, fat: 3 },
     meals: [
       { time:"08:00 早餐", items:[{dot:"pro",txt:"鸡蛋 ×2（整只）",note:"~13g 蛋白质"},{dot:"carb",txt:"蒸红薯 150g",note:"1 拳碳水"},{dot:"pro",txt:"纯牛奶 250ml",note:"~8g 蛋白质"}], kcal: "~440", pro: "~22g" },
       { time:"12:00 午餐", items:[{dot:"pro",txt:"鸡胸肉 150g",note:"~35g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"米饭（熟）200g",note:"1.5 拳碳水"},{dot:"veg",txt:"番茄/黄瓜/生菜 200g+",note:"凉拌不限量"},{dot:"fat",txt:"橄榄油 8g",note:"0.8 拇指"}], kcal: "~580", pro: "~40g", swap: "可换：瘦牛肉" },
       { time:"18:30 晚餐", items:[{dot:"pro",txt:"瘦牛肉 150g",note:"~36g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"土豆/山药 200g",note:"1.5 拳碳水"},{dot:"veg",txt:"绿叶菜 200g+",note:"不限量"},{dot:"fat",txt:"坚果 10g",note:"1 拇指"}], kcal: "~530", pro: "~38g", tip:"晚餐稍早，给消化留时间"}
     ]
   },
-  { label: "周五", type: "train", kcal: 2100, carb: 235, fat: 58, hand: { pro: 4, carb: 4, fat: 3 },
+  { label: "周五", type: "train", kcal: 2150, carb: 240, fat: 58, hand: { pro: 4, carb: 4, fat: 3 },
     meals: [
       { time:"08:00 早餐", items:[{dot:"pro",txt:"鸡蛋 ×2（整只）",note:"~13g 蛋白质"},{dot:"carb",txt:"全麦面包 2 片",note:"1 拳碳水"},{dot:"pro",txt:"纯牛奶 250ml",note:"~8g 蛋白质"},{dot:"fat",txt:"花生酱 5g",note:"0.5 拇指"}], kcal: "~500", pro: "~25g" },
       { time:"12:00 午餐", items:[{dot:"pro",txt:"虾仁 150g",note:"~30g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"米饭（熟）300g",note:"2 拳碳水"},{dot:"veg",txt:"芦笋/西葫芦 200g+",note:"不限量"},{dot:"fat",txt:"橄榄油 10g",note:"1 拇指"}], kcal: "~640", pro: "~38g", swap: "可换：鸡胸肉 / 鱼片" },
@@ -1104,14 +1105,14 @@ const weeklyMeals = [
       { time:"19:00 晚餐", items:[{dot:"pro",txt:"鸡胸肉 150g",note:"~35g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"红薯 200g",note:"1.5 拳碳水"},{dot:"veg",txt:"蔬菜 200g+",note:"不限量"},{dot:"fat",txt:"坚果 10g",note:"1 拇指"}], kcal: "~560", pro: "~42g", tip:"睡前 1-3h 蛋白质"}
     ]
   },
-  { label: "周六", type: "rest", kcal: 1900, carb: 170, fat: 62, hand: { pro: 4, carb: 3, fat: 3 },
+  { label: "周六", type: "rest", kcal: 1900, carb: 195, fat: 58, hand: { pro: 4, carb: 3, fat: 3 },
     meals: [
       { time:"08:00 早餐", items:[{dot:"pro",txt:"鸡蛋 ×2（整只）",note:"~13g 蛋白质"},{dot:"carb",txt:"蒸南瓜 200g",note:"1 拳碳水"},{dot:"pro",txt:"豆浆（无糖）300ml",note:"~10g 蛋白质"}], kcal: "~440", pro: "~24g" },
       { time:"12:00 午餐", items:[{dot:"pro",txt:"三文鱼 150g（煎/烤）",note:"~32g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"米饭（熟）200g",note:"1.5 拳碳水"},{dot:"veg",txt:"烤蔬菜拼盘 200g+",note:"不限量"},{dot:"fat",txt:"橄榄油 8g",note:"0.8 拇指"}], kcal: "~600", pro: "~36g", swap: "可换：鳕鱼 / 虾仁", tip:"三文鱼富含 n-3，支持睾酮" },
       { time:"18:30 晚餐", items:[{dot:"pro",txt:"去皮鸡腿肉 150g",note:"~34g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"紫薯 200g",note:"1.5 拳碳水"},{dot:"veg",txt:"蔬菜 200g+",note:"不限量"},{dot:"fat",txt:"坚果 10g",note:"1 拇指"}], kcal: "~560", pro: "~40g"}
     ]
   },
-  { label: "周日", type: "rest", kcal: 1900, carb: 175, fat: 60, hand: { pro: 4, carb: 3, fat: 3 },
+  { label: "周日", type: "rest", kcal: 1900, carb: 195, fat: 58, hand: { pro: 4, carb: 3, fat: 3 },
     meals: [
       { time:"08:30 早餐", items:[{dot:"pro",txt:"鸡蛋 ×2（整只）",note:"~13g 蛋白质"},{dot:"carb",txt:"燕麦 30g + 蓝莓 50g",note:"1 拳碳水"},{dot:"pro",txt:"纯牛奶 250ml",note:"~8g 蛋白质"}], kcal: "~450", pro: "~22g" },
       { time:"12:00 午餐", items:[{dot:"pro",txt:"瘦牛肉 150g",note:"~36g 蛋白质 · 1.5 掌"},{dot:"carb",txt:"米饭（熟）200g",note:"1.5 拳碳水"},{dot:"veg",txt:"蔬菜 200g+",note:"不限量"},{dot:"fat",txt:"橄榄油 8g",note:"0.8 拇指"}], kcal: "~580", pro: "~40g", swap: "可换：鸡胸肉" },
@@ -1128,11 +1129,13 @@ function renderMealDay() {
   badge.textContent = isTrain ? '训练日' : '休息日';
   badge.style.background = isTrain ? 'var(--accent)' : '#0f3460'; badge.style.color = '#fff';
   document.getElementById('mealKcal').textContent = d.kcal;
-  const proPct = Math.round(140*4/d.kcal*100);
+  document.getElementById('mealProtein').textContent = d.pro || 150;
+  const proPct = Math.round((d.pro||150)*4/d.kcal*100);
   const carbPct = Math.round(d.carb*4/d.kcal*100);
+  const proteinTarget = d.pro || 150;
   const fatPct = Math.round(d.fat*9/d.kcal*100);
   document.getElementById('macroBars').innerHTML = `
-    <div class="flex justify-between text-xs"><span class="muted">蛋白质 140g</span><span class="text-white font-bold">${proPct}%</span></div>
+    <div class="flex justify-between text-xs"><span class="muted">蛋白质 ${proteinTarget}g</span><span class="text-white font-bold">${proPct}%</span></div>
     <div class="macro-bar"><div class="macro-fill" style="width:${proPct}%;background:#f43f5e"></div></div>
     <div class="flex justify-between text-xs"><span class="muted">碳水 ${d.carb}g</span><span class="text-white font-bold">${carbPct}%</span></div>
     <div class="macro-bar"><div class="macro-fill" style="width:${carbPct}%;background:#f97316"></div></div>
@@ -1148,17 +1151,17 @@ function renderMealDay() {
     mealsHTML += `</div>`;
   });
   document.getElementById('dayMeals').innerHTML = mealsHTML;
-  const carbRange = isTrain ? '~235' : '~165';
+  const carbRange = d.carb;
   document.getElementById('daySummary').innerHTML = `
     <div class="flex justify-between items-center mb-2"><span class="text-sm font-bold text-white">全天汇总</span><span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:${isTrain?'var(--accent)':'#0f3460'};color:#fff;">${isTrain?'训练日 4 餐':'休息日 3 餐'}</span></div>
     <div class="grid grid-cols-4 gap-2 text-center text-xs">
       <div><div class="text-lg font-bold accent-text">${d.kcal}</div><span class="muted">kcal</span></div>
-      <div><div class="text-lg font-bold text-orange-400">140</div><span class="muted">蛋白质 g</span></div>
+      <div><div class="text-lg font-bold text-orange-400">150</div><span class="muted">蛋白质 g</span></div>
       <div><div class="text-lg font-bold text-amber-400">${carbRange}</div><span class="muted">碳水 g</span></div>
       <div><div class="text-lg font-bold text-yellow-400">~${d.fat}</div><span class="muted">脂肪 g</span></div>
     </div>
     <div class="text-xs muted mt-3 pt-3 border-t border-[#1e293b] leading-relaxed">
-      <span class="text-yellow-400 font-bold">Tips：</span>① 蛋白质先吃够 140g，然后填碳水和蔬菜<br>② 肉类可水煮、少油煎、空气炸锅。调味用黑胡椒、蒜、醋、低钠酱油<br>③ 橄榄油不要高温炒（冒烟破坏营养），凉拌或出锅前淋<br>④ ${isTrain ? '训练日碳水 4 拳，练后高 GI 碳水（米饭）加速肌糖原恢复' : '休息日碳水 3 拳，晚餐碳水用红薯/南瓜等低 GI 来源'}
+      <span class="text-yellow-400 font-bold">Tips：</span>① 蛋白质先吃够 150g，然后填碳水和蔬菜<br>② 肉类可水煮、少油煎、空气炸锅。调味用黑胡椒、蒜、醋、低钠酱油<br>③ 橄榄油不要高温炒（冒烟破坏营养），凉拌或出锅前淋<br>④ ${isTrain ? '训练日碳水 4 拳，练后高 GI 碳水（米饭）加速肌糖原恢复' : '休息日碳水 3 拳，晚餐碳水用红薯/南瓜等低 GI 来源'}<br>⑤ 每日饮水量 = 77×0.04 ≈ 3L，训练日额外+500ml
     </div>`;
   renderDaySelector();
 }
