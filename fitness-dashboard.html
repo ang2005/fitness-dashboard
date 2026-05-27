@@ -730,8 +730,9 @@ function renderExercises() {
     html += `<div class="card text-center ${allDone ? 'completed' : ''}">`;
 
     // 动作名 + 组数次数组
+    const repsLabel = ex.reps.includes('秒') ? ex.reps : ex.reps + ' 次';
     html += `<div class="text-base font-extrabold text-white mb-1">${ex.name}</div>`;
-    html += `<div class="text-xs text-[var(--muted)] mb-2">${ex.sets} 组 × ${ex.reps} 次</div>`;
+    html += `<div class="text-xs mb-2" style="color:var(--muted)">${ex.sets} 组 × ${repsLabel}</div>`;
 
     // 锻炼肌肉 + 使用器械（居中两行）
     html += `<div class="flex justify-center gap-2 mb-3">`;
@@ -742,7 +743,7 @@ function renderExercises() {
     html += `</div>`;
 
     // 备选动作
-    html += `<div class="text-xs text-[var(--muted)] mb-2">备选：${ex.alt}</div>`;
+    html += `<div class="text-xs mb-2" style="color:var(--muted)">备选：${ex.alt}</div>`;
 
     // 动作要点
     html += `<p class="text-xs muted leading-relaxed mb-3">${ex.tip}</p>`;
