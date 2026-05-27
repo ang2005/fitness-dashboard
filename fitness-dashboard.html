@@ -246,6 +246,7 @@
   <button class="day-tab active" data-day="0">Day A · 上肢力量</button>
   <button class="day-tab" data-day="1">Day B · 腿与核心</button>
   <button class="day-tab" data-day="2">Day C · 循环全身</button>
+  <button class="day-tab" data-day="3">Day 静力 · 等长训练</button>
 </div>
 
 <div class="grid grid-cols-3 gap-2 mb-5">
@@ -275,7 +276,7 @@
   <button class="btn-ghost flex-1" onclick="document.getElementById('importFile').click()">导入历史</button>
   <input type="file" id="importFile" accept=".json" onchange="importData(this)">
 </div>
-<p class="text-center text-xs muted mt-4">组间休息 60-90 秒 · 每周 3 天（二/四/六）· 隔日训练 · 复合动作为主</p>
+<p class="text-center text-xs muted mt-4">组间休息 60-90 秒 · 每周 4 天（一/三/五/日）· 静力日用力量架 · 复合动作为主</p>
 
 </div><!-- /workoutSection -->
 
@@ -517,6 +518,29 @@ const workoutDays = [
         tip:"肘微屈、掌心向下，举起至与肩同高→暂停2秒旋转哑铃掌心向上→再举过头顶→慢放", safety:"小重量高次数，不要耸肩，用三角肌发力而非手臂", source:"李小龙：有效单独锻炼三角肌外侧及头部——举起时吸气、放低时呼气" },
       { name:"手指俯卧撑 + 悬垂蛙踢", muscle:"前臂+腹", equipment:"单杠/引体向上杠", alt:"标准俯卧撑 + 仰卧举腿", sets:3, reps:"AMRAP/15-20", weight:0, key:"finger_plank_frog",
         tip:"手指支撑做俯卧撑（先所有手指→逐渐减少手指）→悬垂提膝至胸部，重复15-20次", safety:"手指从全指着地开始渐进；蛙踢注意控制不摆动", source:"李小龙每日前臂+腹肌组合——仅用食指和拇指就能做俯卧撑；蛙踢可治疗腰伤" }
+    ]
+  },
+  {
+    name: "Day 静力 · 等长训练", focus: "全身静力收缩、肌腱强化、突破粘滞点",
+    exercises: [
+      { name:"锁定位置上举", muscle:"胸、肩、肱三头", equipment:"力量架/深蹲架、杠铃", alt:"俯卧撑静力保持（最低点推地）", sets:1, reps:"6-12秒", weight:20, key:"iso_lockout_press",
+        tip:"杠铃杆置于力量架上（胸口高度，或低于锁定位置5-8cm），站姿双手握杠贴胸→用最大力量向上推压，保持6-12秒", safety:"背部挺直、腹部收紧，发力时正常呼吸不要憋气", source:"李小龙静力训练8项基础练习之一——强化推举锁定阶段的绝对力量" },
+      { name:"起始位置上举", muscle:"胸、肩前束、肱三头", equipment:"力量架/深蹲架、杠铃", alt:"墙推静力（双手推墙，身体前倾）", sets:1, reps:"6-12秒", weight:15, key:"iso_start_press",
+        tip:"杠铃杆置于起始推举位置上方5-8cm处→用最大爆发力向上推压，模拟推举的启动阶段", safety:"杆必须卡死在架上不可滑动，选择完全安全的销位高度", source:"李小龙：将杆放在推举动作最困难的位置下方2-3英寸，用尽全力推压——突破粘滞点" },
+      { name:"足尖上举", muscle:"小腿、踝关节", equipment:"力量架/深蹲架、杠铃、垫板", alt:"自重提踵静力（手扶墙，脚尖站立最高点保持）", sets:1, reps:"6-12秒", weight:15, key:"iso_calf_raise",
+        tip:"杠铃置于颈后肩上如深蹲姿势→双脚前掌站在3-4英寸厚木板上→尽量踮高脚尖→保持6-12秒", safety:"确保杠铃杆稳定置于斜方肌上，双手始终扶杠平衡", source:"李小龙静力训练8项基础练习之三——增强踢击爆发力和小腿耐力" },
+      { name:"上拉（静力弯举）", muscle:"肱二头、前臂", equipment:"力量架/深蹲架、杠铃", alt:"门框静力弯举（双手扣门框上沿拉力保持）", sets:1, reps:"6-12秒", weight:10, key:"iso_curl",
+        tip:"杠铃杆置于大腿高度→双手掌心向上握杠→用最大力量向上弯举拉压，保持6-12秒", safety:"背部挺直，上臂贴紧体侧不动，仅用臂力", source:"李小龙静力训练8项基础练习之四——强化弯举动作全程的肱二头肌力量" },
+      { name:"深蹲（马步）上举", muscle:"腿、臀、肩", equipment:"力量架/深蹲架、杠铃", alt:"靠墙静蹲+双手上推（分两步做）", sets:1, reps:"6-12秒", weight:15, key:"iso_squat_press",
+        tip:"下蹲至大腿与地面平行→杠铃置于颈后肩上→用最大力量向上推蹬，保持6-12秒", safety:"头部保持正直、背部挺直，膝盖方向与脚尖一致", source:"李小龙静力训练8项基础练习之五——同时锻炼下肢蹬力与肩部推力" },
+      { name:"耸肩（静力）", muscle:"斜方肌、肩胛提肌", equipment:"力量架/深蹲架、杠铃", alt:"哑铃耸肩静力（双手各持哑铃，耸肩至最高保持）", sets:1, reps:"6-12秒", weight:20, key:"iso_shrug",
+        tip:"杠铃杆置于大腿前、双臂伸直握杠→尽量向上耸起双肩→保持6-12秒", safety:"双臂始终伸直不弯曲，下巴微收避免颈部紧张", source:"李小龙静力训练8项基础练习之六——打造标志性的高耸斜方肌" },
+      { name:"硬拉（静力）", muscle:"后链、背、腿", equipment:"力量架/深蹲架、杠铃", alt:"壶铃静力硬拉（低位保持）", sets:1, reps:"6-12秒", weight:25, key:"iso_deadlift",
+        tip:"杠铃杆置于膝盖高度→双脚与肩同宽、背部挺直→用最大力量向上拉，保持6-12秒", safety:"背部绝不弓起，手臂始终伸直，用腿和背部力量同时发力", source:"李小龙静力训练8项基础练习之七——全面强化背部与后链力量" },
+      { name:"半蹲上举", muscle:"腿、髋部、肩", equipment:"力量架/深蹲架、杠铃", alt:"四分之一深蹲跳（非静力替代）", sets:1, reps:"6-12秒", weight:15, key:"iso_quarter_squat",
+        tip:"杠铃置于颈后→微屈膝成四分之一蹲姿势→用最大力量向上蹬伸并推杠，保持6-12秒", safety:"销位设在大约四分之一蹲高上方5-8cm，确保杆不会脱出", source:"李小龙静力训练8项基础练习之八——锻炼短距离爆发力，直接转化为出拳与踢击速度" },
+      { name:"蛙式举腿（收尾）", muscle:"腹、髋屈肌", equipment:"引体向上杠/单杠", alt:"仰卧举腿静力（双腿伸直离地15cm保持）", sets:1, reps:"6-12秒", weight:0, key:"iso_frog_kick",
+        tip:"悬垂于单杠→双膝提至胸部→用腹部最大力量保持收腿姿势6-12秒", safety:"握力不足时使用助力带；下杠时不要直接跳下", source:"李小龙静力训练收尾动作——核心肌群的终极静力刺激，同时拉伸脊柱" }
     ]
   }
 ];
