@@ -10,7 +10,6 @@
   :root {
     --bg: #0a0a0f;
     --card: #14141f;
-    --card-hover: #1a1a2a;
     --accent: #f43f5e;
     --accent2: #f97316;
     --gold: #eab308;
@@ -32,7 +31,6 @@
   }
   .card.completed { border-color: var(--green); border-width: 2px; }
   .accent-text { color: var(--accent); }
-  .accent-bg { background: var(--accent); }
   .muted { color: var(--muted); }
 
   input[type="number"] {
@@ -75,11 +73,6 @@
 
   .progress-ring { transform: rotate(-90deg); }
   .progress-ring circle { transition: stroke-dashoffset 0.4s ease; }
-
-  .alt-tag { display: inline-block; background: rgba(249,115,22,0.15); color: var(--accent2);
-    padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: 6px; }
-  .muscle-tag { display: inline-block; background: rgba(148,163,184,0.1); color: var(--muted);
-    padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-right: 4px; }
 
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
   .pulsing { animation: pulse 0.8s infinite; }
@@ -444,8 +437,8 @@
 //  FIT DEFAULTS    → --accent: #f43f5e  --bg: #0a0a0f  --card: #14141f  --accent2: #f97316
 //  QIQU OVERRIDES  → --accent: #f59e0b  --bg: #0a0a0c  --card: #14141a  --accent2: #d4a574
 // ═══════════════════════════════════════════════
-const FIT_VARS = { '--bg':'#0a0a0f','--card':'#14141f','--card-hover':'#1a1a2a','--accent':'#f43f5e','--accent2':'#f97316' };
-const QIQU_VARS = { '--bg':'#0a0a0c','--card':'#14141a','--card-hover':'#1a1a24','--accent':'#f59e0b','--accent2':'#d4a574' };
+const FIT_VARS = { '--bg':'#0a0a0f','--card':'#14141f','--accent':'#f43f5e','--accent2':'#f97316' };
+const QIQU_VARS = { '--bg':'#0a0a0c','--card':'#14141a','--accent':'#f59e0b','--accent2':'#d4a574' };
 
 function applyTheme(vars) {
   const root = document.documentElement;
@@ -478,7 +471,7 @@ document.getElementById('topTabFitness').addEventListener('click', () => switchT
 document.getElementById('topTabQiqu').addEventListener('click', () => switchTopTab('qiqu'));
 
 // ═══════════════════════════════════════════════
-//  FITNESS JS (原封不动)
+//  FITNESS DATA & ENGINE
 // ═══════════════════════════════════════════════
 const workoutDays = [
   {
