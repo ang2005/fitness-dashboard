@@ -53,6 +53,10 @@
     cursor: pointer; transition: all 0.2s;
   }
   .btn-ghost:hover { border-color: var(--accent); color: var(--text); }
+  .warmup-card { border-left: 3px solid #f97316; }
+  .warmup-card .warmup-dot { background: rgba(249,115,22,0.25); color: #fb923c; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .stretch-card { border-left: 3px solid #06b6d4; }
+  .stretch-card .stretch-dot { background: rgba(6,182,212,0.2); color: #22d3ee; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
 
   .day-tab {
     padding: 10px 18px; border-radius: 10px; border: 1px solid var(--border);
@@ -264,7 +268,11 @@
   </div>
 </div>
 
+<div id="warmupSection"></div>
+
 <div id="exerciseList"></div>
+
+<div id="stretchSection"></div>
 
 <div class="flex gap-3 mt-5">
   <button class="btn-accent flex-1" onclick="resetAll()">重置今日</button>
@@ -478,72 +486,164 @@ const workoutDays = [
   {
     name: "Day A · 上肢力量", focus: "胸、背、肩、臂",
     exercises: [
-      { name:"杠铃仰卧推举", muscle:"胸", equipment:"杠铃、平凳", alt:"哑铃平板卧推（轻重量，10-12 RM）", sets:3, reps:"6-12", weight:20, key:"bench_press",
+      { name:"杠铃仰卧推举", muscle:"胸", equipment:"杠铃、平凳", alt:"哑铃平板卧推（轻重量，10-12 RM）", sets:3, reps:"8", weight:20, key:"bench_press",
         tip:"肩胛骨压紧平凳，杠铃对准胸部正上方，放下时深吸气、推起时呼气", safety:"双脚垂地保持平衡，杠铃不要偏向腹部方向下落", source:"李小龙：基础练习方法，所有运动员都应采用——躺凳上完成全部动作，双脚垂地保持平衡" },
-      { name:"杠铃划船", muscle:"背", equipment:"杠铃", alt:"单臂哑铃划船（壶铃更佳）", sets:3, reps:"8-12", weight:15, key:"barbell_row",
+      { name:"杠铃划船", muscle:"背", equipment:"杠铃", alt:"单臂哑铃划船（壶铃更佳）", sets:3, reps:"10", weight:15, key:"barbell_row",
         tip:"双脚分开约20cm，髋部弯曲俯身，背部尽量挺直，肘部向后将杠铃提至肋骨下方", safety:"背始终挺直不弓腰，提拉时吸气、放下时呼气", source:"李小龙最喜欢的背阔肌训练方法——黄锦铭与赫布·杰克逊回忆" },
-      { name:"杠铃颈后推举", muscle:"肩", equipment:"杠铃", alt:"哑铃坐姿推举", sets:3, reps:"8-12", weight:10, key:"behind_neck_press",
+      { name:"杠铃颈后推举", muscle:"肩", equipment:"杠铃", alt:"哑铃坐姿推举", sets:3, reps:"10", weight:10, key:"behind_neck_press",
         tip:"双手与肩同宽握杠，从地面举起至胸部→推至头顶→降下至颈后斜方肌上→再推起", safety:"核心收紧，选择能完全控制的重量；坐姿更安全", source:"李小龙站姿/坐姿均练，颈后推举是锻炼三角肌与肩部肌群的常用方法" },
-      { name:"杠铃弯举（双臂）", muscle:"手臂", equipment:"杠铃", alt:"单臂哑铃集中弯举", sets:3, reps:"8-12", weight:12, key:"barbell_curl",
+      { name:"杠铃弯举（双臂）", muscle:"手臂", equipment:"杠铃", alt:"单臂哑铃集中弯举", sets:3, reps:"10", weight:12, key:"barbell_curl",
         tip:"双手与肩同宽、掌心向前握杠，上臂紧贴体侧不动，慢速弯举至下颚，收紧肱二头肌默数'1、2'再慢放", safety:"背部挺直，不要前倾后仰借力", source:"李小龙：弯举时吸气，放下时呼气——不要借力蒙混" },
-      { name:"反握腕弯举（正手）", muscle:"前臂", equipment:"杠铃", alt:"腕力轴卷绳（前臂黄金动作）", sets:3, reps:"尽可能多", weight:5, key:"wrist_curl",
+      { name:"反握腕弯举（正手）", muscle:"前臂", equipment:"杠铃", alt:"腕力轴卷绳（前臂黄金动作）", sets:3, reps:"15", weight:5, key:"wrist_curl",
         tip:"前臂放于大腿上，手指握杠铃卷曲→尽量屈腕→慢放，集中感受前臂灼烧", safety:"小重量起步，腕部动作幅度尽量大", source:"李小龙：前臂肌群非常密集，必须每天锻炼——前臂力量=出拳力量+抓握力" }
     ]
   },
   {
     name: "Day B · 腿与核心", focus: "腿、臀、下背、腹",
     exercises: [
-      { name:"杠铃深蹲", muscle:"腿", equipment:"杠铃、深蹲架", alt:"高脚杯深蹲（哑铃胸前抱）", sets:3, reps:"12-20", weight:15, key:"barbell_squat",
+      { name:"杠铃深蹲", muscle:"腿", equipment:"杠铃、深蹲架", alt:"高脚杯深蹲（哑铃胸前抱）", sets:3, reps:"15", weight:15, key:"barbell_squat",
         tip:"双脚与肩同宽、脚尖向前，杠铃置于颈后肩上，屈膝至大腿与地面平行→迅速站直", safety:"屈膝前深吸气，站直时呼气，背始终挺直，脚跟不离地", source:"李小龙首选的腿部训练——深蹲不仅练大腿全部肌肉，且对呼吸系统非常有益" },
-      { name:"硬拉（传统）", muscle:"后链", equipment:"杠铃", alt:"哑铃罗马尼亚硬拉（轻重量学髋铰链）", sets:3, reps:"8-12", weight:20, key:"deadlift",
+      { name:"硬拉（传统）", muscle:"后链", equipment:"杠铃", alt:"哑铃罗马尼亚硬拉（轻重量学髋铰链）", sets:3, reps:"10", weight:20, key:"deadlift",
         tip:"双脚与肩同宽脚尖向前，小腿贴杠铃杆，背部挺直髋部下沉→先伸直腿部→再挺上身直立", safety:"双臂始终伸直，不要弓背；先轻重量充分热身，背部挺直是底线", source:"李小龙：硬拉是练成骇人背肌并提高整体力量的最佳训练动作——可带动全身肌群" },
-      { name:"举腿（悬垂或仰卧）", muscle:"腹", equipment:"引体向上杠/平凳", alt:"仰卧起坐（卷腹式）", sets:3, reps:"15-20", weight:0, key:"leg_raise",
+      { name:"举腿（悬垂或仰卧）", muscle:"腹", equipment:"引体向上杠/平凳", alt:"仰卧起坐（卷腹式）", sets:3, reps:"18", weight:0, key:"leg_raise",
         tip:"双腿绷直举起至与身体成90度→在肌肉控制下慢放；最后一次可保持举腿姿势做交叉摆腿", safety:"握力不够先从仰卧版开始，不用惯性摆动", source:"李小龙每天必做腹肌训练——腰腹是身体重心中点，是真正的力量源泉" },
-      { name:"转体仰卧起坐", muscle:"腹斜", equipment:"腹肌板/斜板", alt:"站姿转体（杠铃杆置于颈后）", sets:3, reps:"15-20", weight:0, key:"twist_situp",
+      { name:"转体仰卧起坐", muscle:"腹斜", equipment:"腹肌板/斜板", alt:"站姿转体（杠铃杆置于颈后）", sets:3, reps:"18", weight:0, key:"twist_situp",
         tip:"双手置脑后，左肘触右膝→下一次右肘触左膝，像卷纸一样卷起背部而非直起直落", safety:"不要猛拽脖子，腹肌发力带动上身", source:"李小龙认为转体起坐比普通仰卧起坐更有效——锻炼腹外斜肌，练成结实紧收的腰身" },
-      { name:"提踵（站姿）", muscle:"小腿", equipment:"木块/台阶（3-4英寸厚）", alt:"坐姿提踵", sets:3, reps:"10-20", weight:0, key:"calf_raise",
+      { name:"提踵（站姿）", muscle:"小腿", equipment:"木块/台阶（3-4英寸厚）", alt:"坐姿提踵", sets:3, reps:"15", weight:0, key:"calf_raise",
         tip:"脚尖站在3-4英寸厚木板上，脚跟下降至最低→尽量抬高身体，脚踝做最大幅度运动", safety:"第一个月只用自重，之后逐渐增加负重", source:"李小龙：提踵是锻炼小腿与脚踝肌腱的最佳练习之一——增强踢击的爆发力和稳定性" }
     ]
   },
   {
     name: "Day C · 循环全身", focus: "全身复合、心肺、前臂",
     exercises: [
-      { name:"挺举", muscle:"全身", equipment:"杠铃", alt:"哑铃高翻+推举（分解做）", sets:3, reps:"8-12", weight:15, key:"clean_press",
+      { name:"挺举", muscle:"全身", equipment:"杠铃", alt:"哑铃高翻+推举（分解做）", sets:3, reps:"10", weight:15, key:"clean_press",
         tip:"双脚与肩同宽→屈膝背部挺直→腿背发力提杠铃至胸部→推举至头顶→连贯完成", safety:"先用轻重量学动作链，下颚注意内收以免被杠铃杆击中", source:"李小龙每次训练开始的必须步骤——锻炼全身每组肌群，尤其是肩、肱二头、肱三头" },
       { name:"引体向上（正手）", muscle:"背", equipment:"单杠/引体向上杠", alt:"高位下拉（前侧）或辅助引体向上机", sets:3, reps:"尽可能多", weight:0, key:"pullup",
         tip:"正手（掌心向前）握杠，下颚过杠，身体不要晃动→慢放下至手臂完全伸直", safety:"做不了完整引体可从悬垂静态保持开始，或用辅助机", source:"李小龙最喜欢的背部训练方法之一——目标是将胸部拉至接触横杠" },
-      { name:"上斜哑铃弯举", muscle:"手臂", equipment:"哑铃、上斜板", alt:"佐特曼弯举（看书/看电视时就能练前臂）", sets:3, reps:"6-8", weight:6, key:"incline_curl",
+      { name:"上斜哑铃弯举", muscle:"手臂", equipment:"哑铃、上斜板", alt:"佐特曼弯举（看书/看电视时就能练前臂）", sets:3, reps:"8", weight:6, key:"incline_curl",
         tip:"仰卧在上斜板上，双臂自然下垂→弯举哑铃至肩部→缓慢放回，全程注视肱二头肌收缩", safety:"不要借力摆动身体，控制离心阶段", source:"李小龙1965年44天增肌计划的王牌动作——肱二头肌围度增长的核心驱动" },
-      { name:"哑铃侧平举", muscle:"肩", equipment:"哑铃", alt:"直立上拉（杠铃）", sets:3, reps:"8-12", weight:3, key:"lateral_raise",
+      { name:"哑铃侧平举", muscle:"肩", equipment:"哑铃", alt:"直立上拉（杠铃）", sets:3, reps:"10", weight:3, key:"lateral_raise",
         tip:"肘微屈、掌心向下，举起至与肩同高→暂停2秒旋转哑铃掌心向上→再举过头顶→慢放", safety:"小重量高次数，不要耸肩，用三角肌发力而非手臂", source:"李小龙：有效单独锻炼三角肌外侧及头部——举起时吸气、放低时呼气" },
-      { name:"手指俯卧撑 + 悬垂蛙踢", muscle:"前臂+腹", equipment:"单杠/引体向上杠", alt:"标准俯卧撑 + 仰卧举腿", sets:3, reps:"AMRAP/15-20", weight:0, key:"finger_plank_frog",
+      { name:"手指俯卧撑 + 悬垂蛙踢", muscle:"前臂+腹", equipment:"单杠/引体向上杠", alt:"标准俯卧撑 + 仰卧举腿", sets:3, reps:"15", weight:0, key:"finger_plank_frog",
         tip:"手指支撑做俯卧撑（先所有手指→逐渐减少手指）→悬垂提膝至胸部，重复15-20次", safety:"手指从全指着地开始渐进；蛙踢注意控制不摆动", source:"李小龙每日前臂+腹肌组合——仅用食指和拇指就能做俯卧撑；蛙踢可治疗腰伤" }
     ]
   },
   {
     name: "Day 静力 · 等长训练", focus: "全身静力收缩、肌腱强化、突破粘滞点",
     exercises: [
-      { name:"锁定位置上举", muscle:"胸、肩、肱三头", equipment:"力量架/深蹲架、杠铃", alt:"俯卧撑静力保持（最低点推地）", sets:1, reps:"6-12秒", weight:20, key:"iso_lockout_press",
+      { name:"锁定位置上举", muscle:"胸、肩、肱三头", equipment:"力量架/深蹲架、杠铃", alt:"俯卧撑静力保持（最低点推地）", sets:1, reps:"10秒", weight:20, key:"iso_lockout_press",
         tip:"杠铃杆置于力量架上（胸口高度，或低于锁定位置5-8cm），站姿双手握杠贴胸→用最大力量向上推压，保持6-12秒", safety:"背部挺直、腹部收紧，发力时正常呼吸不要憋气", source:"李小龙静力训练8项基础练习之一——强化推举锁定阶段的绝对力量" },
-      { name:"起始位置上举", muscle:"胸、肩前束、肱三头", equipment:"力量架/深蹲架、杠铃", alt:"墙推静力（双手推墙，身体前倾）", sets:1, reps:"6-12秒", weight:15, key:"iso_start_press",
+      { name:"起始位置上举", muscle:"胸、肩前束、肱三头", equipment:"力量架/深蹲架、杠铃", alt:"墙推静力（双手推墙，身体前倾）", sets:1, reps:"10秒", weight:15, key:"iso_start_press",
         tip:"杠铃杆置于起始推举位置上方5-8cm处→用最大爆发力向上推压，模拟推举的启动阶段", safety:"杆必须卡死在架上不可滑动，选择完全安全的销位高度", source:"李小龙：将杆放在推举动作最困难的位置下方2-3英寸，用尽全力推压——突破粘滞点" },
-      { name:"足尖上举", muscle:"小腿、踝关节", equipment:"力量架/深蹲架、杠铃、垫板", alt:"自重提踵静力（手扶墙，脚尖站立最高点保持）", sets:1, reps:"6-12秒", weight:15, key:"iso_calf_raise",
+      { name:"足尖上举", muscle:"小腿、踝关节", equipment:"力量架/深蹲架、杠铃、垫板", alt:"自重提踵静力（手扶墙，脚尖站立最高点保持）", sets:1, reps:"10秒", weight:15, key:"iso_calf_raise",
         tip:"杠铃置于颈后肩上如深蹲姿势→双脚前掌站在3-4英寸厚木板上→尽量踮高脚尖→保持6-12秒", safety:"确保杠铃杆稳定置于斜方肌上，双手始终扶杠平衡", source:"李小龙静力训练8项基础练习之三——增强踢击爆发力和小腿耐力" },
-      { name:"上拉（静力弯举）", muscle:"肱二头、前臂", equipment:"力量架/深蹲架、杠铃", alt:"门框静力弯举（双手扣门框上沿拉力保持）", sets:1, reps:"6-12秒", weight:10, key:"iso_curl",
+      { name:"上拉（静力弯举）", muscle:"肱二头、前臂", equipment:"力量架/深蹲架、杠铃", alt:"门框静力弯举（双手扣门框上沿拉力保持）", sets:1, reps:"10秒", weight:10, key:"iso_curl",
         tip:"杠铃杆置于大腿高度→双手掌心向上握杠→用最大力量向上弯举拉压，保持6-12秒", safety:"背部挺直，上臂贴紧体侧不动，仅用臂力", source:"李小龙静力训练8项基础练习之四——强化弯举动作全程的肱二头肌力量" },
-      { name:"深蹲（马步）上举", muscle:"腿、臀、肩", equipment:"力量架/深蹲架、杠铃", alt:"靠墙静蹲+双手上推（分两步做）", sets:1, reps:"6-12秒", weight:15, key:"iso_squat_press",
+      { name:"深蹲（马步）上举", muscle:"腿、臀、肩", equipment:"力量架/深蹲架、杠铃", alt:"靠墙静蹲+双手上推（分两步做）", sets:1, reps:"10秒", weight:15, key:"iso_squat_press",
         tip:"下蹲至大腿与地面平行→杠铃置于颈后肩上→用最大力量向上推蹬，保持6-12秒", safety:"头部保持正直、背部挺直，膝盖方向与脚尖一致", source:"李小龙静力训练8项基础练习之五——同时锻炼下肢蹬力与肩部推力" },
-      { name:"耸肩（静力）", muscle:"斜方肌、肩胛提肌", equipment:"力量架/深蹲架、杠铃", alt:"哑铃耸肩静力（双手各持哑铃，耸肩至最高保持）", sets:1, reps:"6-12秒", weight:20, key:"iso_shrug",
+      { name:"耸肩（静力）", muscle:"斜方肌、肩胛提肌", equipment:"力量架/深蹲架、杠铃", alt:"哑铃耸肩静力（双手各持哑铃，耸肩至最高保持）", sets:1, reps:"10秒", weight:20, key:"iso_shrug",
         tip:"杠铃杆置于大腿前、双臂伸直握杠→尽量向上耸起双肩→保持6-12秒", safety:"双臂始终伸直不弯曲，下巴微收避免颈部紧张", source:"李小龙静力训练8项基础练习之六——打造标志性的高耸斜方肌" },
-      { name:"硬拉（静力）", muscle:"后链、背、腿", equipment:"力量架/深蹲架、杠铃", alt:"壶铃静力硬拉（低位保持）", sets:1, reps:"6-12秒", weight:25, key:"iso_deadlift",
+      { name:"硬拉（静力）", muscle:"后链、背、腿", equipment:"力量架/深蹲架、杠铃", alt:"壶铃静力硬拉（低位保持）", sets:1, reps:"10秒", weight:25, key:"iso_deadlift",
         tip:"杠铃杆置于膝盖高度→双脚与肩同宽、背部挺直→用最大力量向上拉，保持6-12秒", safety:"背部绝不弓起，手臂始终伸直，用腿和背部力量同时发力", source:"李小龙静力训练8项基础练习之七——全面强化背部与后链力量" },
-      { name:"半蹲上举", muscle:"腿、髋部、肩", equipment:"力量架/深蹲架、杠铃", alt:"四分之一深蹲跳（非静力替代）", sets:1, reps:"6-12秒", weight:15, key:"iso_quarter_squat",
+      { name:"半蹲上举", muscle:"腿、髋部、肩", equipment:"力量架/深蹲架、杠铃", alt:"四分之一深蹲跳（非静力替代）", sets:1, reps:"10秒", weight:15, key:"iso_quarter_squat",
         tip:"杠铃置于颈后→微屈膝成四分之一蹲姿势→用最大力量向上蹬伸并推杠，保持6-12秒", safety:"销位设在大约四分之一蹲高上方5-8cm，确保杆不会脱出", source:"李小龙静力训练8项基础练习之八——锻炼短距离爆发力，直接转化为出拳与踢击速度" },
-      { name:"蛙式举腿（收尾）", muscle:"腹、髋屈肌", equipment:"引体向上杠/单杠", alt:"仰卧举腿静力（双腿伸直离地15cm保持）", sets:1, reps:"6-12秒", weight:0, key:"iso_frog_kick",
+      { name:"蛙式举腿（收尾）", muscle:"腹、髋屈肌", equipment:"引体向上杠/单杠", alt:"仰卧举腿静力（双腿伸直离地15cm保持）", sets:1, reps:"10秒", weight:0, key:"iso_frog_kick",
         tip:"悬垂于单杠→双膝提至胸部→用腹部最大力量保持收腿姿势6-12秒", safety:"握力不足时使用助力带；下杠时不要直接跳下", source:"李小龙静力训练收尾动作——核心肌群的终极静力刺激，同时拉伸脊柱" }
     ]
   }
 ];
+
+// 热身数据（每日训练前）
+const warmupData = [
+  [
+    { name:"跳绳/原地慢跑", duration:"3-5 分钟", tip:"微微出汗即可，让体温升高" },
+    { name:"关节环绕", duration:"各 10 次", tip:"颈→肩→腕→髋→膝→踝，由小到大" },
+    { name:"开合跳", duration:"20 次", tip:"节奏稳定，呼吸均匀" },
+    { name:"肩部环绕", duration:"前后各 10 次", tip:"手臂伸直大幅绕圈" },
+    { name:"弹力带肩部激活", duration:"每侧 10 次", tip:"弹力带外旋+内旋，激活肩袖肌群" },
+    { name:"空杠推举热身", duration:"1 组 × 10 次", tip:"仅用杠铃杆，感受肩胛运动" }
+  ],
+  [
+    { name:"跳绳/原地慢跑", duration:"3-5 分钟", tip:"微微出汗即可，让体温升高" },
+    { name:"关节环绕", duration:"各 10 次", tip:"颈→肩→腕→髋→膝→踝，由小到大" },
+    { name:"体重深蹲", duration:"15 次", tip:"蹲至大腿平行地面，激活臀腿" },
+    { name:"弓步走", duration:"每侧 10 步", tip:"原地交替弓步，上身保持正直" },
+    { name:"髋部环绕", duration:"顺逆各 10 次", tip:"双手叉腰，大幅度绕髋" },
+    { name:"空杠深蹲热身", duration:"1 组 × 10 次", tip:"仅用杠铃杆，检查下蹲深度和姿势" }
+  ],
+  [
+    { name:"跳绳/原地慢跑", duration:"3-5 分钟", tip:"微微出汗即可，让体温升高" },
+    { name:"关节环绕", duration:"各 10 次", tip:"颈→肩→腕→髋→膝→踝，由小到大" },
+    { name:"肩部环绕 + 髋部环绕", duration:"各 10 次", tip:"全幅度绕动，为全身复合动作预热" },
+    { name:"猫牛式脊柱活动", duration:"10 次", tip:"四足跪姿，逐节活动脊柱" },
+    { name:"轻重量挺举分解", duration:"1 组 × 8 次", tip:"分段练习：硬拉→高翻→推举，轻重量" },
+    { name:"空杠划船热身", duration:"1 组 × 10 次", tip:"仅用杠铃杆，感受背部收缩" }
+  ],
+  [
+    { name:"原地慢跑", duration:"2-3 分钟", tip:"轻微升温，不必出大汗" },
+    { name:"关节环绕", duration:"各 10 次", tip:"颈→肩→腕→髋→膝→踝" },
+    { name:"肩部环绕 + 腕部活动", duration:"各 10 次", tip:"注意手腕屈伸，静力训练手腕压力大" },
+    { name:"空杠各角度试推", duration:"3 个角度 × 5 秒", tip:"用空杠在锁定位、起始位、半蹲位试压，找到今日销位" },
+    { name:"深呼吸调整", duration:"5 次深腹式呼吸", tip:"吸气3秒→屏息2秒→呼气4秒，进入专注状态" }
+  ]
+];
+
+// 拉伸数据（每日训练后）
+const stretchData = [
+  [
+    { name:"胸大肌拉伸", duration:"每侧 30 秒", tip:"手臂90度靠墙/门框→身体向前旋转至胸肌有拉伸感" },
+    { name:"背阔肌拉伸", duration:"每侧 30 秒", tip:"单手抓固定物→臀部后坐→感受背部外侧拉伸" },
+    { name:"三角肌后束拉伸", duration:"每侧 30 秒", tip:"一侧手臂横过胸前→另一手轻拉肘部靠近胸部" },
+    { name:"肱二头肌拉伸", duration:"每侧 30 秒", tip:"手臂伸直向后→手掌朝上→轻轻后伸肩部" },
+    { name:"前臂屈肌拉伸", duration:"每侧 30 秒", tip:"手臂前伸掌心向上→另一手轻轻将手指向下拉" },
+    { name:"深呼吸放松", duration:"5 次", tip:"仰卧闭眼，鼻吸口呼，全身依次放松" }
+  ],
+  [
+    { name:"腘绳肌拉伸", duration:"每侧 30 秒", tip:"坐姿一腿伸直→身体前倾→保持背部挺直" },
+    { name:"股四头肌拉伸", duration:"每侧 30 秒", tip:"单腿站立→屈膝手握脚踝→脚跟靠近臀部" },
+    { name:"髋屈肌拉伸", duration:"每侧 30 秒", tip:"弓步姿势→后膝着地→髋部前推至大腿前侧有拉伸感" },
+    { name:"腹肌拉伸（上犬式）", duration:"30 秒", tip:"俯卧双手撑地→上半身抬起→髋部不离地" },
+    { name:"小腿拉伸", duration:"每侧 30 秒", tip:"弓步双手推墙→后腿伸直脚跟不离地→身体前倾" },
+    { name:"深呼吸放松", duration:"5 次", tip:"仰卧闭眼，鼻吸口呼，全身依次放松" }
+  ],
+  [
+    { name:"全身悬挂拉伸", duration:"30 秒", tip:"悬垂单杠→全身放松→感受脊柱拉长" },
+    { name:"肩部交叉拉伸", duration:"每侧 30 秒", tip:"一侧手臂横过胸前→另一手轻拉肘部" },
+    { name:"背阔肌拉伸", duration:"每侧 30 秒", tip:"单手抓固定物→臀部后坐→感受背部拉伸" },
+    { name:"前臂拉伸", duration:"每侧 30 秒", tip:"屈腕和伸腕分别拉伸，静力训练后前臂最需要放松" },
+    { name:"下背部拉伸（婴儿式）", duration:"30 秒", tip:"跪姿臀部坐脚跟→手臂前伸→额头贴地" },
+    { name:"深呼吸放松", duration:"5 次", tip:"仰卧闭眼，鼻吸口呼，全身依次放松" }
+  ],
+  [
+    { name:"全身悬挂拉伸", duration:"30-60 秒", tip:"悬垂单杠→全身完全放松→脊柱减压" },
+    { name:"腕屈肌+伸肌拉伸", duration:"每侧 30 秒", tip:"静力训练对手腕压力大，务必充分拉伸屈腕和伸腕" },
+    { name:"颈部拉伸", duration:"每侧 15 秒", tip:"头缓慢侧倾→手轻压→左右各一次，不可用力过猛" },
+    { name:"肩部环绕放松", duration:"前后各 10 次", tip:"缓慢大幅绕圈，感受肩关节活动范围恢复" },
+    { name:"仰卧全身伸展", duration:"60 秒", tip:"仰卧→四肢张开→深呼吸→从头到脚依次放松" }
+  ]
+];
+
+function renderWarmup() {
+  const container = document.getElementById('warmupSection');
+  const items = warmupData[currentDay];
+  let html = '<div class="card warmup-card"><div class="text-sm font-bold text-orange-400 mb-3">🔥 训练前热身</div>';
+  items.forEach((item, i) => {
+    html += `<div class="flex items-center gap-3 mb-3"><div class="warmup-dot">${i+1}</div><div class="flex-1"><div class="text-sm text-white font-semibold">${item.name}</div><div class="text-xs muted">${item.tip}</div></div><div class="text-xs text-orange-400 font-bold whitespace-nowrap">${item.duration}</div></div>`;
+  });
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function renderStretch() {
+  const container = document.getElementById('stretchSection');
+  const items = stretchData[currentDay];
+  let html = '<div class="card stretch-card"><div class="text-sm font-bold text-cyan-400 mb-3">🧘 训练后拉伸</div>';
+  items.forEach((item, i) => {
+    html += `<div class="flex items-center gap-3 mb-3"><div class="stretch-dot">${i+1}</div><div class="flex-1"><div class="text-sm text-white font-semibold">${item.name}</div><div class="text-xs muted">${item.tip}</div></div><div class="text-xs text-cyan-400 font-bold whitespace-nowrap">${item.duration}</div></div>`;
+  });
+  html += '</div>';
+  container.innerHTML = html;
+}
 
 let currentDay = 0;
 let timerId = null;
@@ -670,6 +770,8 @@ function renderExercises() {
     html += `</div>`;
   });
   container.innerHTML = html;
+  renderWarmup();
+  renderStretch();
   updateStats();
   renderVolumeRec();
 }
