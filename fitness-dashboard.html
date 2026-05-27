@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>减脂力量 · 七部曲看板</title>
+<title>龙之力量 · 七部曲看板</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
@@ -203,9 +203,9 @@
 <div class="flex items-center justify-between mb-6">
   <div>
     <h1 class="text-2xl font-extrabold tracking-tight">
-      <span class="text-white">力量</span><span class="accent-text">看板</span>
+      <span class="text-white">龙之</span><span class="accent-text">力量看板</span>
     </h1>
-    <p class="text-xs muted mt-1" id="headerSub">减脂 · 力量 · 无伤</p>
+    <p class="text-xs muted mt-1" id="headerSub">力量 · 速度 · 实用</p>
   </div>
   <div class="relative w-20 h-20">
     <svg class="progress-ring" width="80" height="80" viewBox="0 0 80 80">
@@ -250,9 +250,9 @@
 </div>
 
 <div class="flex gap-2 mb-5 overflow-x-auto pb-1">
-  <button class="day-tab active" data-day="0">Day A · 推主导</button>
-  <button class="day-tab" data-day="1">Day B · 拉主导</button>
-  <button class="day-tab" data-day="2">Day C · 腿核心</button>
+  <button class="day-tab active" data-day="0">Day A · 上肢力量</button>
+  <button class="day-tab" data-day="1">Day B · 腿与核心</button>
+  <button class="day-tab" data-day="2">Day C · 循环全身</button>
 </div>
 
 <div class="grid grid-cols-3 gap-2 mb-5">
@@ -282,7 +282,7 @@
   <button class="btn-ghost flex-1" onclick="document.getElementById('importFile').click()">导入历史</button>
   <input type="file" id="importFile" accept=".json" onchange="importData(this)">
 </div>
-<p class="text-center text-xs muted mt-4">组间休息 90 秒 · 每周 3 天 · 非连续日训练</p>
+<p class="text-center text-xs muted mt-4">组间休息 60-90 秒 · 每周 3 天（二/四/六）· 隔日训练 · 复合动作为主</p>
 
 </div><!-- /workoutSection -->
 
@@ -482,48 +482,48 @@ document.getElementById('topTabQiqu').addEventListener('click', () => switchTopT
 // ═══════════════════════════════════════════════
 const workoutDays = [
   {
-    name: "Day A · 推主导", focus: "胸、肩、三头、腿",
+    name: "Day A · 上肢力量", focus: "胸、背、肩、臂",
     exercises: [
-      { name:"器械坐姿推胸", muscle:"胸", alt:"哑铃平板卧推（轻重量，10-12 RM）", sets:3, reps:"10-12", weight:20, key:"chest_press",
-        tip:"肩胛骨收紧贴靠背，手腕不弯曲，推到肘微屈即可", safety:"安全器械，轨迹固定，新手最友好的胸部动作", source:"NASM 推荐新手首选固定器械" },
-      { name:"器械坐姿推肩", muscle:"肩", alt:"哑铃坐姿推举（轻重量，12-15 RM）", sets:3, reps:"10-12", weight:10, key:"shoulder_press",
-        tip:"核心收紧，推到头顶正上方，下落时肘不低过肩", safety:"器械固定轨迹，避免肩袖损伤", source:"NASM 推荐避开新手颈后下拉等肩部高危动作" },
-      { name:"绳索肱三头肌下压", muscle:"手臂", alt:"凳上臂屈伸（体重即可）", sets:3, reps:"12-15", weight:10, key:"tricep",
-        tip:"大臂固定于体侧不动，只动前臂，到底部挤压三头", safety:"绳索机固定轨迹，不伤手腕", source:"NASM 推荐孤立手臂训练避开窄距卧推" },
-      { name:"倒蹬机（腿举）", muscle:"腿", alt:"高脚杯深蹲（哑铃胸前抱住，自重→负重）", sets:3, reps:"10-12", weight:40, key:"leg_press",
-        tip:"双脚与肩同宽踩实，膝盖与脚尖同向，下到 90 度即可", safety:"倒蹬机保护腰椎，《力量训练基础》认可作为深蹲辅助", source:"Starting Strength 推荐深蹲替代/辅助动作" },
-      { name:"高位下拉（前侧）", muscle:"背", alt:"辅助引体向上机", sets:3, reps:"10-12", weight:25, key:"lat_pulldown",
-        tip:"挺胸沉肩，拉到锁骨位置，身体不要后仰太多", safety:"固定器械，新手安全练背首选", source:"NASM 推荐——引体向上对新手上肢力量要求过高" }
+      { name:"杠铃仰卧推举", muscle:"胸", alt:"哑铃平板卧推（轻重量，10-12 RM）", sets:3, reps:"6-12", weight:20, key:"bench_press",
+        tip:"肩胛骨压紧平凳，杠铃对准胸部正上方，放下时深吸气、推起时呼气", safety:"双脚垂地保持平衡，杠铃不要偏向腹部方向下落", source:"李小龙：基础练习方法，所有运动员都应采用——躺凳上完成全部动作，双脚垂地保持平衡" },
+      { name:"杠铃划船", muscle:"背", alt:"单臂哑铃划船（壶铃更佳）", sets:3, reps:"8-12", weight:15, key:"barbell_row",
+        tip:"双脚分开约20cm，髋部弯曲俯身，背部尽量挺直，肘部向后将杠铃提至肋骨下方", safety:"背始终挺直不弓腰，提拉时吸气、放下时呼气", source:"李小龙最喜欢的背阔肌训练方法——黄锦铭与赫布·杰克逊回忆" },
+      { name:"杠铃颈后推举", muscle:"肩", alt:"哑铃坐姿推举", sets:3, reps:"8-12", weight:10, key:"behind_neck_press",
+        tip:"双手与肩同宽握杠，从地面举起至胸部→推至头顶→降下至颈后斜方肌上→再推起", safety:"核心收紧，选择能完全控制的重量；坐姿更安全", source:"李小龙站姿/坐姿均练，颈后推举是锻炼三角肌与肩部肌群的常用方法" },
+      { name:"杠铃弯举（双臂）", muscle:"手臂", alt:"单臂哑铃集中弯举", sets:3, reps:"8-12", weight:12, key:"barbell_curl",
+        tip:"双手与肩同宽、掌心向前握杠，上臂紧贴体侧不动，慢速弯举至下颚，收紧肱二头肌默数'1、2'再慢放", safety:"背部挺直，不要前倾后仰借力", source:"李小龙：弯举时吸气，放下时呼气——不要借力蒙混" },
+      { name:"反握腕弯举（正手）", muscle:"前臂", alt:"腕力轴卷绳（前臂黄金动作）", sets:3, reps:"尽可能多", weight:5, key:"wrist_curl",
+        tip:"前臂放于大腿上，手指握杠铃卷曲→尽量屈腕→慢放，集中感受前臂灼烧", safety:"小重量起步，腕部动作幅度尽量大", source:"李小龙：前臂肌群非常密集，必须每天锻炼——前臂力量=出拳力量+抓握力" }
     ]
   },
   {
-    name: "Day B · 拉主导", focus: "背、二头、后链、肩后束",
+    name: "Day B · 腿与核心", focus: "腿、臀、下背、腹",
     exercises: [
-      { name:"坐姿绳索划船", muscle:"背", alt:"单臂哑铃划船（另一手扶凳）", sets:3, reps:"10-12", weight:20, key:"seated_row",
-        tip:"背挺直，拉到腹部，肩胛骨完全夹紧", safety:"绳索机稳定轨迹，保护下背", source:"NASM 推荐优先器械划船而非杠铃划船（新手易弓腰）" },
-      { name:"绳索面拉", muscle:"肩后束", alt:"反向蝴蝶机", sets:3, reps:"15-20", weight:5, key:"face_pull",
-        tip:"拉到脸部高度，肘高于手，拇指朝外", safety:"矫正圆肩的关键动作，肩关节健康必做", source:"NASM 矫正训练模块重点推荐" },
-      { name:"器械坐姿弯举", muscle:"手臂", alt:"哑铃交替弯举", sets:3, reps:"12-15", weight:10, key:"curl",
-        tip:"大臂固定，缓慢下放（离心 3 秒）", safety:"器械隔离，避免借力", source:"NASM 推荐新手使用固定器械孤立训练" },
-      { name:"哑铃罗马尼亚硬拉", muscle:"后链", alt:"器械俯卧腿弯举", sets:3, reps:"10-12", weight:10, key:"rdl",
-        tip:"膝微屈，髋部后推，杠铃/哑铃贴腿，背始终挺直", safety:"轻重量哑铃学习髋铰链模式，《力量训练基础》核心动作简化版", source:"Starting Strength 硬拉章节——髋铰链是一切硬拉的基础" },
-      { name:"平板支撑", muscle:"核心", alt:"死虫式（Dead Bug）", sets:3, reps:"30-45秒", weight:0, key:"plank",
-        tip:"身体一条直线，臀不塌腰不弓，呼吸均匀", safety:"零关节压力核心训练", source:"NASM 核心稳定性模块推荐" }
+      { name:"杠铃深蹲", muscle:"腿", alt:"高脚杯深蹲（哑铃胸前抱）", sets:3, reps:"12-20", weight:15, key:"barbell_squat",
+        tip:"双脚与肩同宽、脚尖向前，杠铃置于颈后肩上，屈膝至大腿与地面平行→迅速站直", safety:"屈膝前深吸气，站直时呼气，背始终挺直，脚跟不离地", source:"李小龙首选的腿部训练——深蹲不仅练大腿全部肌肉，且对呼吸系统非常有益" },
+      { name:"硬拉（传统）", muscle:"后链", alt:"哑铃罗马尼亚硬拉（轻重量学髋铰链）", sets:3, reps:"8-12", weight:20, key:"deadlift",
+        tip:"双脚与肩同宽脚尖向前，小腿贴杠铃杆，背部挺直髋部下沉→先伸直腿部→再挺上身直立", safety:"双臂始终伸直，不要弓背；先轻重量充分热身，背部挺直是底线", source:"李小龙：硬拉是练成骇人背肌并提高整体力量的最佳训练动作——可带动全身肌群" },
+      { name:"举腿（悬垂或仰卧）", muscle:"腹", alt:"仰卧起坐（卷腹式）", sets:3, reps:"15-20", weight:0, key:"leg_raise",
+        tip:"双腿绷直举起至与身体成90度→在肌肉控制下慢放；最后一次可保持举腿姿势做交叉摆腿", safety:"握力不够先从仰卧版开始，不用惯性摆动", source:"李小龙每天必做腹肌训练——腰腹是身体重心中点，是真正的力量源泉" },
+      { name:"转体仰卧起坐", muscle:"腹斜", alt:"站姿转体（杠铃杆置于颈后）", sets:3, reps:"15-20", weight:0, key:"twist_situp",
+        tip:"双手置脑后，左肘触右膝→下一次右肘触左膝，像卷纸一样卷起背部而非直起直落", safety:"不要猛拽脖子，腹肌发力带动上身", source:"李小龙认为转体起坐比普通仰卧起坐更有效——锻炼腹外斜肌，练成结实紧收的腰身" },
+      { name:"提踵（站姿）", muscle:"小腿", alt:"坐姿提踵", sets:3, reps:"10-20", weight:0, key:"calf_raise",
+        tip:"脚尖站在3-4英寸厚木板上，脚跟下降至最低→尽量抬高身体，脚踝做最大幅度运动", safety:"第一个月只用自重，之后逐渐增加负重", source:"李小龙：提踵是锻炼小腿与脚踝肌腱的最佳练习之一——增强踢击的爆发力和稳定性" }
     ]
   },
   {
-    name: "Day C · 腿核心", focus: "腿、臀、核心、肩",
+    name: "Day C · 循环全身", focus: "全身复合、心肺、前臂",
     exercises: [
-      { name:"高脚杯深蹲", muscle:"腿", alt:"倒蹬机（腿举）", sets:3, reps:"10-12", weight:8, key:"goblet_squat",
-        tip:"哑铃胸前抱住，臀后坐像坐椅子，膝外展，蹲到大腿平行地面", safety:"胸前负重自然挺直躯干，《力量训练基础》深蹲入门第一步", source:"Starting Strength 教学流程——高脚杯深蹲是杠铃深蹲的前置训练" },
-      { name:"保加利亚分腿蹲", muscle:"腿", alt:"自重弓步走", sets:3, reps:"8-10/每侧", weight:0, key:"bulgarian",
-        tip:"后脚搭凳，前脚向前站，垂直下沉，膝不超过脚尖过多", safety:"先自重学会控制平衡", source:"NASM 推荐单侧训练纠正左右不平衡" },
-      { name:"器械坐姿腿弯举", muscle:"后链", alt:"健身球腘绳肌弯举", sets:3, reps:"12-15", weight:15, key:"leg_curl",
-        tip:"慢速离心（下放 3 秒），充分感受腘绳肌拉伸", safety:"固定器械零风险", source:"NASM 推荐用固定器械隔离腘绳肌" },
-      { name:"哑铃侧平举", muscle:"肩", alt:"器械侧平举", sets:3, reps:"12-15", weight:3, key:"lateral_raise",
-        tip:"肘微屈，小重量，不要耸肩，用肩带动而非手臂", safety:"小重量高次数，避免肩峰撞击", source:"NASM 推荐肩中束孤立训练用轻重量" },
-      { name:"悬垂举腿（屈膝版）", muscle:"核心", alt:"仰卧举腿", sets:3, reps:"8-12", weight:0, key:"knee_raise",
-        tip:"屈膝做，用下腹发力卷起骨盆，不要靠惯性摆动", safety:"如果握力不够，先从仰卧版开始", source:"NASM 核心训练进阶模块" }
+      { name:"挺举", muscle:"全身", alt:"哑铃高翻+推举（分解做）", sets:3, reps:"8-12", weight:15, key:"clean_press",
+        tip:"双脚与肩同宽→屈膝背部挺直→腿背发力提杠铃至胸部→推举至头顶→连贯完成", safety:"先用轻重量学动作链，下颚注意内收以免被杠铃杆击中", source:"李小龙每次训练开始的必须步骤——锻炼全身每组肌群，尤其是肩、肱二头、肱三头" },
+      { name:"引体向上（正手）", muscle:"背", alt:"高位下拉（前侧）或辅助引体向上机", sets:3, reps:"尽可能多", weight:0, key:"pullup",
+        tip:"正手（掌心向前）握杠，下颚过杠，身体不要晃动→慢放下至手臂完全伸直", safety:"做不了完整引体可从悬垂静态保持开始，或用辅助机", source:"李小龙最喜欢的背部训练方法之一——目标是将胸部拉至接触横杠" },
+      { name:"上斜哑铃弯举", muscle:"手臂", alt:"佐特曼弯举（看书/看电视时就能练前臂）", sets:3, reps:"6-8", weight:6, key:"incline_curl",
+        tip:"仰卧在上斜板上，双臂自然下垂→弯举哑铃至肩部→缓慢放回，全程注视肱二头肌收缩", safety:"不要借力摆动身体，控制离心阶段", source:"李小龙1965年44天增肌计划的王牌动作——肱二头肌围度增长的核心驱动" },
+      { name:"哑铃侧平举", muscle:"肩", alt:"直立上拉（杠铃）", sets:3, reps:"8-12", weight:3, key:"lateral_raise",
+        tip:"肘微屈、掌心向下，举起至与肩同高→暂停2秒旋转哑铃掌心向上→再举过头顶→慢放", safety:"小重量高次数，不要耸肩，用三角肌发力而非手臂", source:"李小龙：有效单独锻炼三角肌外侧及头部——举起时吸气、放低时呼气" },
+      { name:"手指俯卧撑 + 悬垂蛙踢", muscle:"前臂+腹", alt:"标准俯卧撑 + 仰卧举腿", sets:3, reps:"AMRAP/15-20", weight:0, key:"finger_plank_frog",
+        tip:"手指支撑做俯卧撑（先所有手指→逐渐减少手指）→悬垂提膝至胸部，重复15-20次", safety:"手指从全指着地开始渐进；蛙踢注意控制不摆动", source:"李小龙每日前臂+腹肌组合——仅用食指和拇指就能做俯卧撑；蛙踢可治疗腰伤" }
     ]
   }
 ];
@@ -567,9 +567,9 @@ function getVolumeRec() {
   const totalExercises = day.exercises.length;
   const totalSets = day.exercises.reduce((s,ex) => s + ex.sets, 0);
   const minSets = 12, maxSets = 18, idealSets = totalSets;
-  const rpeRec = "7-8（每组留 2-3 次余力，不做到力竭）";
-  const minVol = 2000, maxVol = 4000;
-  const progression = "每周增加 2-5% 重量或 1-2 次，优先增加重量再增加次数";
+  const rpeRec = "7-8（每组留 2-3 次余力，不做到力竭）——李小龙：不要借力蒙混，用你能负荷的重量";
+  const minVol = 1500, maxVol = 4000;
+  const progression = "每周增加 2-5% 重量或 1-2 次——李小龙：确切的记录让你看到进步而备受鼓舞";
   return { totalExercises, totalSets, minSets, maxSets, idealSets, rpeRec, minVol, maxVol, progression };
 }
 
@@ -597,8 +597,7 @@ function renderVolumeRec() {
       <div><span class="muted">渐进策略</span><br><span class="text-white font-bold">${rec.progression}</span></div>
     </div>
     <div class="text-xs muted mt-2 pt-2 border-t border-[#1e293b]">
-      <span class="text-yellow-400 font-bold">新手提示：</span>完成全部 ${rec.idealSets} 组即达标。不追求力竭，动作质量优先于重量。
-      每次训练比上次多加 1-2 kg 或 1-2 次，就是有效的渐进超负荷。
+      <span class="text-yellow-400 font-bold">李小龙训练法则：</span>更多重量+更少次数=力量，更少重量+更多次数=耐力。所有训练不要借力蒙混。腹部和前臂鼓励每天额外训练。
     </div>
   `;
 }
