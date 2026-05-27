@@ -247,6 +247,53 @@
   </div>
 </div>
 
+<!-- CARDIO 有氧建议 -->
+<div class="card mb-3" style="border-left: 3px solid #06b6d4; border-color: rgba(6,182,212,0.3);">
+  <div class="collapse-header" onclick="document.getElementById('cardioBody').classList.toggle('open')">
+    <div class="flex items-center gap-2">
+      <span class="text-sm font-bold" style="color:#22d3ee;">有氧计划 · 加速减脂</span>
+      <span class="text-xs muted">每周 3-5 次</span>
+    </div>
+    <span class="text-xs muted">▼</span>
+  </div>
+  <div class="collapse-content open" id="cardioBody">
+    <div class="mt-3 space-y-3">
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <div class="bg-[#0a0a0f] rounded-lg p-3">
+          <div class="text-cyan-400 font-bold mb-1">方式一：力量后加有氧</div>
+          <div class="text-[#e2e8f0]">跑步机爬坡走 · 20-30 分钟</div>
+          <div class="muted">坡度 10-12 · 速度 4-5 km/h<br>心率 120-140 bpm（Zone 2）</div>
+        </div>
+        <div class="bg-[#0a0a0f] rounded-lg p-3">
+          <div class="text-cyan-400 font-bold mb-1">方式二：纯有氧日</div>
+          <div class="text-[#e2e8f0]">户外快走/慢跑 · 40-50 分钟</div>
+          <div class="muted">保持能说话的强度<br>或骑行/游泳替代</div>
+        </div>
+      </div>
+      <div class="grid grid-cols-3 gap-1 text-center text-xs">
+        <div class="bg-[#0a0a0f] rounded-lg py-2">
+          <div class="text-cyan-400 font-bold text-lg">~250</div>
+          <div class="muted">kcal/次消耗</div>
+        </div>
+        <div class="bg-[#0a0a0f] rounded-lg py-2">
+          <div class="text-cyan-400 font-bold text-lg">3-5</div>
+          <div class="muted">次/周</div>
+        </div>
+        <div class="bg-[#0a0a0f] rounded-lg py-2">
+          <div class="text-cyan-400 font-bold text-lg">150+</div>
+          <div class="muted">分钟/周</div>
+        </div>
+      </div>
+      <div class="text-xs muted leading-relaxed pt-1 border-t border-[#1e293b]">
+        <span class="text-cyan-400 font-bold">为什么必须有氧：</span>3 个月减 8kg 到 14% 体脂，日均需 ~770 kcal 赤字。纯饮食赤字 ~690（平均摄入 ~2020 vs TDEE ~2710）+ 有氧 ~140 kcal/天 = 日均 ~830 kcal，留出安全裕量。LISS 不增食欲、不影响力量恢复。
+      </div>
+      <div class="text-xs muted">
+        <span class="text-amber-400 font-bold">安排建议：</span>周二/四/六/日任选 3-4 天做有氧。力量训练日可在练后加 20 分钟；纯休息日可做 40-50 分钟户外快走。
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="flex gap-2 mb-5 overflow-x-auto pb-1">
   <button class="day-tab active" data-day="0">Day A · 上肢力量</button>
   <button class="day-tab" data-day="1">Day B · 腿与核心</button>
@@ -285,7 +332,7 @@
   <button class="btn-ghost flex-1" onclick="document.getElementById('importFile').click()">导入历史</button>
   <input type="file" id="importFile" accept=".json" onchange="importData(this)">
 </div>
-<p class="text-center text-xs muted mt-4">组间休息 60-90 秒 · 每周 4 天（一/三/五/日）· 静力日用力量架 · 复合动作为主</p>
+<p class="text-center text-xs muted mt-4">组间休息 60-90 秒 · 力量 4 天（一/三/五/日）+ 有氧 3-4 天（二/四/六）· 静力日用力量架 · 复合动作为主</p>
 
 </div><!-- /workoutSection -->
 
