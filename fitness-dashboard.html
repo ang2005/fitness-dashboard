@@ -296,12 +296,12 @@
 
 <div class="flex gap-2 mb-5 overflow-x-auto pb-1">
   <button class="day-tab active" data-day="0">周一 · Day C · 循环全身</button>
-  <button class="day-tab" data-day="1">周三 · Day A · 上肢力量</button>
-  <button class="day-tab" data-day="2">周五 · Day B · 腿与核心</button>
-  <button class="day-tab" data-day="3">Day 静力 · 等长训练</button>
-  <button class="day-tab" data-day="4">周二 · 有氧 · 爬楼机</button>
-  <button class="day-tab" data-day="5">周四 · 有氧 · 跑步机</button>
-  <button class="day-tab" data-day="6">周六 · 有氧 · 自行车</button>
+  <button class="day-tab" data-day="1">周二 · 有氧 · 爬楼机</button>
+  <button class="day-tab" data-day="2">周三 · Day A · 上肢力量</button>
+  <button class="day-tab" data-day="3">周四 · 有氧 · 跑步机</button>
+  <button class="day-tab" data-day="4">周五 · Day B · 腿与核心</button>
+  <button class="day-tab" data-day="5">周六 · 有氧 · 自行车</button>
+  <button class="day-tab" data-day="6">Day 静力 · 等长训练</button>
 </div>
 
 <div class="grid grid-cols-3 gap-2 mb-5">
@@ -757,7 +757,7 @@ const stretchData = [
 
 function renderWarmup() {
   const container = document.getElementById('warmupSection');
-  const items = warmupData[currentDay];
+  const items = warmupData[dataDay()];
   let html = '<div class="card warmup-card"><div class="text-sm font-bold text-orange-400 mb-3">🔥 训练前热身</div>';
   items.forEach((item, i) => {
     html += `<div class="flex items-center gap-3 mb-3"><div class="warmup-dot">${i+1}</div><div class="flex-1"><div class="text-sm text-white font-semibold">${item.name}</div><div class="text-xs muted">${item.tip}</div></div><div class="text-xs text-orange-400 font-bold whitespace-nowrap">${item.duration}</div></div>`;
@@ -768,7 +768,7 @@ function renderWarmup() {
 
 function renderStretch() {
   const container = document.getElementById('stretchSection');
-  const items = stretchData[currentDay];
+  const items = stretchData[dataDay()];
   let html = '<div class="card stretch-card"><div class="text-sm font-bold text-cyan-400 mb-3">🧘 训练后拉伸</div>';
   items.forEach((item, i) => {
     html += `<div class="flex items-center gap-3 mb-3"><div class="stretch-dot">${i+1}</div><div class="flex-1"><div class="text-sm text-white font-semibold">${item.name}</div><div class="text-xs muted">${item.tip}</div></div><div class="text-xs text-cyan-400 font-bold whitespace-nowrap">${item.duration}</div></div>`;
@@ -778,6 +778,9 @@ function renderStretch() {
 }
 
 let currentDay = 0;
+// tab 显示顺序 → workoutDays/warmupData/stretchData 实际索引
+// 显示: 周一/周二/周三/周四/周五/周六/静力 → 数据: [0,4,1,5,2,6,3]
+function dataDay() { return [0, 4, 1, 5, 2, 6, 3][currentDay]; }
 let timerId = null;
 let timerSeconds = 0;
 let data = {};
@@ -799,7 +802,7 @@ function saveData() { localStorage.setItem('fitness_dashboard', JSON.stringify(d
 function saveHistory() { localStorage.setItem('fitness_history', JSON.stringify(trainingHistory)); }
 
 function calcProgress() {
-  const day = workoutDays[currentDay];
+  const day = workoutDays[dataDay()];
   let totalSets = 0, doneSets = 0, totalWt = 0;
   day.exercises.forEach((ex, ei) => {
     const k = `${currentDay}_${ei}`;
@@ -812,7 +815,7 @@ function calcProgress() {
 }
 
 function getVolumeRec() {
-  const day = workoutDays[currentDay];
+  const day = workoutDays[dataDay()];
   const totalExercises = day.exercises.length;
   const totalSets = day.exercises.reduce((s,ex) => s + ex.sets, 0);
   const minSets = 12, maxSets = 18, idealSets = totalSets;
@@ -853,7 +856,7 @@ function renderVolumeRec() {
 
 function renderExercises() {
   const container = document.getElementById('exerciseList');
-  const day = workoutDays[currentDay];
+  const day = workoutDays[dataDay()];
   let html = '';
   day.exercises.forEach((ex, ei) => {
     const k = `${currentDay}_${ei}`;
@@ -914,7 +917,7 @@ function updateReps(ei, val) { const k = `${currentDay}_${ei}`; data[k].reps = v
 
 function toggleSet(ei, si) {
   const k = `${currentDay}_${ei}`;
-  const day = workoutDays[currentDay];
+  const day = workoutDays[dataDay()];
   const ex = day.exercises[ei];
   if (si < data[k].setsDone) { data[k].setsDone = si; saveData(); renderExercises(); return; }
   if (si === data[k].setsDone) {
@@ -971,7 +974,7 @@ function updateStats() {
 
 function resetAll() {
   if (!confirm('确定要重置今日所有训练数据吗？')) return;
-  workoutDays[currentDay].exercises.forEach((ex, ei) => {
+  workoutDays[dataDay()].exercises.forEach((ex, ei) => {
     const k = `${currentDay}_${ei}`;
     data[k].setsDone = 0; data[k].completed = false;
   });
@@ -983,7 +986,7 @@ function finishWorkout() {
   if (p.pct < 50) {
     if (!confirm(`今天才完成 ${p.pct}%，确定要结束吗？`)) return;
   }
-  const day = workoutDays[currentDay];
+  const day = workoutDays[dataDay()];
   const now = new Date();
   const dateStr = now.toISOString().split('T')[0];
   const timeStr = now.toTimeString().split(' ')[0].substring(0,5);
@@ -1000,7 +1003,7 @@ function finishWorkout() {
   trainingHistory.push(record);
   saveHistory();
   showToast('训练已存档！可在"复盘"查看');
-  workoutDays[currentDay].exercises.forEach((ex, ei) => {
+  workoutDays[dataDay()].exercises.forEach((ex, ei) => {
     const k = `${currentDay}_${ei}`;
     data[k].setsDone = 0; data[k].completed = false;
   });
