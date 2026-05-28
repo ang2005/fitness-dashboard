@@ -295,9 +295,9 @@
 </div>
 
 <div class="flex gap-2 mb-5 overflow-x-auto pb-1">
-  <button class="day-tab active" data-day="0">Day B · 腿与核心</button>
-  <button class="day-tab" data-day="1">Day A · 上肢力量</button>
-  <button class="day-tab" data-day="2">Day C · 循环全身</button>
+  <button class="day-tab active" data-day="0">周一 · Day C · 循环全身</button>
+  <button class="day-tab" data-day="1">周三 · Day A · 上肢力量</button>
+  <button class="day-tab" data-day="2">周五 · Day B · 腿与核心</button>
   <button class="day-tab" data-day="3">Day 静力 · 等长训练</button>
 </div>
 
@@ -532,22 +532,22 @@ document.getElementById('topTabQiqu').addEventListener('click', () => switchTopT
 // ═══════════════════════════════════════════════
 const workoutDays = [
   {
-    name: "Day B · 腿与核心", focus: "腿、臀、下背、腹",
+    name: "周一 · Day C · 循环全身", focus: "全身复合、心肺、前臂",
     exercises: [
-      { name:"杠铃深蹲", muscle:"腿", equipment:"杠铃、深蹲架", alt:"高脚杯深蹲（哑铃胸前抱）", sets:3, reps:"15", weight:15, key:"barbell_squat",
-        tip:"双脚与肩同宽、脚尖向前，杠铃置于颈后肩上，屈膝至大腿与地面平行→迅速站直", safety:"屈膝前深吸气，站直时呼气，背始终挺直，脚跟不离地", source:"李小龙首选的腿部训练——深蹲不仅练大腿全部肌肉，且对呼吸系统非常有益" },
-      { name:"硬拉（传统）", muscle:"后链", equipment:"杠铃", alt:"哑铃罗马尼亚硬拉（轻重量学髋铰链）", sets:3, reps:"10", weight:20, key:"deadlift",
-        tip:"双脚与肩同宽脚尖向前，小腿贴杠铃杆，背部挺直髋部下沉→先伸直腿部→再挺上身直立", safety:"双臂始终伸直，不要弓背；先轻重量充分热身，背部挺直是底线", source:"李小龙：硬拉是练成骇人背肌并提高整体力量的最佳训练动作——可带动全身肌群" },
-      { name:"举腿（悬垂或仰卧）", muscle:"腹", equipment:"引体向上杠/平凳", alt:"仰卧起坐（卷腹式）", sets:3, reps:"18", weight:0, key:"leg_raise",
-        tip:"双腿绷直举起至与身体成90度→在肌肉控制下慢放；最后一次可保持举腿姿势做交叉摆腿", safety:"握力不够先从仰卧版开始，不用惯性摆动", source:"李小龙每天必做腹肌训练——腰腹是身体重心中点，是真正的力量源泉" },
-      { name:"转体仰卧起坐", muscle:"腹斜", equipment:"腹肌板/斜板", alt:"站姿转体（杠铃杆置于颈后）", sets:3, reps:"18", weight:0, key:"twist_situp",
-        tip:"双手置脑后，左肘触右膝→下一次右肘触左膝，像卷纸一样卷起背部而非直起直落", safety:"不要猛拽脖子，腹肌发力带动上身", source:"李小龙认为转体起坐比普通仰卧起坐更有效——锻炼腹外斜肌，练成结实紧收的腰身" },
-      { name:"提踵（站姿）", muscle:"小腿", equipment:"木块/台阶（3-4英寸厚）", alt:"坐姿提踵", sets:3, reps:"15", weight:0, key:"calf_raise",
-        tip:"脚尖站在3-4英寸厚木板上，脚跟下降至最低→尽量抬高身体，脚踝做最大幅度运动", safety:"第一个月只用自重，之后逐渐增加负重", source:"李小龙：提踵是锻炼小腿与脚踝肌腱的最佳练习之一——增强踢击的爆发力和稳定性" }
+      { name:"挺举", muscle:"全身", equipment:"杠铃", alt:"哑铃高翻+推举（分解做）", sets:3, reps:"10", weight:15, key:"clean_press",
+        tip:"双脚与肩同宽→屈膝背部挺直→腿背发力提杠铃至胸部→推举至头顶→连贯完成", safety:"先用轻重量学动作链，下颚注意内收以免被杠铃杆击中", source:"李小龙每次训练开始的必须步骤——锻炼全身每组肌群，尤其是肩、肱二头、肱三头" },
+      { name:"引体向上（正手）", muscle:"背", equipment:"单杠/引体向上杠", alt:"高位下拉（前侧）或辅助引体向上机", sets:3, reps:"尽可能多", weight:0, key:"pullup",
+        tip:"正手（掌心向前）握杠，下颚过杠，身体不要晃动→慢放下至手臂完全伸直", safety:"做不了完整引体可从悬垂静态保持开始，或用辅助机", source:"李小龙最喜欢的背部训练方法之一——目标是将胸部拉至接触横杠" },
+      { name:"上斜哑铃弯举", muscle:"手臂", equipment:"哑铃、上斜板", alt:"佐特曼弯举（看书/看电视时就能练前臂）", sets:3, reps:"8", weight:6, key:"incline_curl",
+        tip:"仰卧在上斜板上，双臂自然下垂→弯举哑铃至肩部→缓慢放回，全程注视肱二头肌收缩", safety:"不要借力摆动身体，控制离心阶段", source:"李小龙1965年44天增肌计划的王牌动作——肱二头肌围度增长的核心驱动" },
+      { name:"哑铃侧平举", muscle:"肩", equipment:"哑铃", alt:"直立上拉（杠铃）", sets:3, reps:"10", weight:3, key:"lateral_raise",
+        tip:"肘微屈、掌心向下，举起至与肩同高→暂停2秒旋转哑铃掌心向上→再举过头顶→慢放", safety:"小重量高次数，不要耸肩，用三角肌发力而非手臂", source:"李小龙：有效单独锻炼三角肌外侧及头部——举起时吸气、放低时呼气" },
+      { name:"手指俯卧撑 + 悬垂蛙踢", muscle:"前臂+腹", equipment:"单杠/引体向上杠", alt:"标准俯卧撑 + 仰卧举腿", sets:3, reps:"15", weight:0, key:"finger_plank_frog",
+        tip:"手指支撑做俯卧撑（先所有手指→逐渐减少手指）→悬垂提膝至胸部，重复15-20次", safety:"手指从全指着地开始渐进；蛙踢注意控制不摆动", source:"李小龙每日前臂+腹肌组合——仅用食指和拇指就能做俯卧撑；蛙踢可治疗腰伤" }
     ]
   },
   {
-    name: "Day A · 上肢力量", focus: "胸、背、肩、臂",
+    name: "周三 · Day A · 上肢力量", focus: "胸、背、肩、臂",
     exercises: [
       { name:"杠铃仰卧推举", muscle:"胸", equipment:"杠铃、平凳", alt:"哑铃平板卧推（轻重量，10-12 RM）", sets:3, reps:"8", weight:20, key:"bench_press",
         tip:"肩胛骨压紧平凳，杠铃对准胸部正上方，放下时深吸气、推起时呼气", safety:"双脚垂地保持平衡，杠铃不要偏向腹部方向下落", source:"李小龙：基础练习方法，所有运动员都应采用——躺凳上完成全部动作，双脚垂地保持平衡" },
@@ -562,18 +562,18 @@ const workoutDays = [
     ]
   },
   {
-    name: "Day C · 循环全身", focus: "全身复合、心肺、前臂",
+    name: "周五 · Day B · 腿与核心", focus: "腿、臀、下背、腹",
     exercises: [
-      { name:"挺举", muscle:"全身", equipment:"杠铃", alt:"哑铃高翻+推举（分解做）", sets:3, reps:"10", weight:15, key:"clean_press",
-        tip:"双脚与肩同宽→屈膝背部挺直→腿背发力提杠铃至胸部→推举至头顶→连贯完成", safety:"先用轻重量学动作链，下颚注意内收以免被杠铃杆击中", source:"李小龙每次训练开始的必须步骤——锻炼全身每组肌群，尤其是肩、肱二头、肱三头" },
-      { name:"引体向上（正手）", muscle:"背", equipment:"单杠/引体向上杠", alt:"高位下拉（前侧）或辅助引体向上机", sets:3, reps:"尽可能多", weight:0, key:"pullup",
-        tip:"正手（掌心向前）握杠，下颚过杠，身体不要晃动→慢放下至手臂完全伸直", safety:"做不了完整引体可从悬垂静态保持开始，或用辅助机", source:"李小龙最喜欢的背部训练方法之一——目标是将胸部拉至接触横杠" },
-      { name:"上斜哑铃弯举", muscle:"手臂", equipment:"哑铃、上斜板", alt:"佐特曼弯举（看书/看电视时就能练前臂）", sets:3, reps:"8", weight:6, key:"incline_curl",
-        tip:"仰卧在上斜板上，双臂自然下垂→弯举哑铃至肩部→缓慢放回，全程注视肱二头肌收缩", safety:"不要借力摆动身体，控制离心阶段", source:"李小龙1965年44天增肌计划的王牌动作——肱二头肌围度增长的核心驱动" },
-      { name:"哑铃侧平举", muscle:"肩", equipment:"哑铃", alt:"直立上拉（杠铃）", sets:3, reps:"10", weight:3, key:"lateral_raise",
-        tip:"肘微屈、掌心向下，举起至与肩同高→暂停2秒旋转哑铃掌心向上→再举过头顶→慢放", safety:"小重量高次数，不要耸肩，用三角肌发力而非手臂", source:"李小龙：有效单独锻炼三角肌外侧及头部——举起时吸气、放低时呼气" },
-      { name:"手指俯卧撑 + 悬垂蛙踢", muscle:"前臂+腹", equipment:"单杠/引体向上杠", alt:"标准俯卧撑 + 仰卧举腿", sets:3, reps:"15", weight:0, key:"finger_plank_frog",
-        tip:"手指支撑做俯卧撑（先所有手指→逐渐减少手指）→悬垂提膝至胸部，重复15-20次", safety:"手指从全指着地开始渐进；蛙踢注意控制不摆动", source:"李小龙每日前臂+腹肌组合——仅用食指和拇指就能做俯卧撑；蛙踢可治疗腰伤" }
+      { name:"杠铃深蹲", muscle:"腿", equipment:"杠铃、深蹲架", alt:"高脚杯深蹲（哑铃胸前抱）", sets:3, reps:"15", weight:15, key:"barbell_squat",
+        tip:"双脚与肩同宽、脚尖向前，杠铃置于颈后肩上，屈膝至大腿与地面平行→迅速站直", safety:"屈膝前深吸气，站直时呼气，背始终挺直，脚跟不离地", source:"李小龙首选的腿部训练——深蹲不仅练大腿全部肌肉，且对呼吸系统非常有益" },
+      { name:"硬拉（传统）", muscle:"后链", equipment:"杠铃", alt:"哑铃罗马尼亚硬拉（轻重量学髋铰链）", sets:3, reps:"10", weight:20, key:"deadlift",
+        tip:"双脚与肩同宽脚尖向前，小腿贴杠铃杆，背部挺直髋部下沉→先伸直腿部→再挺上身直立", safety:"双臂始终伸直，不要弓背；先轻重量充分热身，背部挺直是底线", source:"李小龙：硬拉是练成骇人背肌并提高整体力量的最佳训练动作——可带动全身肌群" },
+      { name:"举腿（悬垂或仰卧）", muscle:"腹", equipment:"引体向上杠/平凳", alt:"仰卧起坐（卷腹式）", sets:3, reps:"18", weight:0, key:"leg_raise",
+        tip:"双腿绷直举起至与身体成90度→在肌肉控制下慢放；最后一次可保持举腿姿势做交叉摆腿", safety:"握力不够先从仰卧版开始，不用惯性摆动", source:"李小龙每天必做腹肌训练——腰腹是身体重心中点，是真正的力量源泉" },
+      { name:"转体仰卧起坐", muscle:"腹斜", equipment:"腹肌板/斜板", alt:"站姿转体（杠铃杆置于颈后）", sets:3, reps:"18", weight:0, key:"twist_situp",
+        tip:"双手置脑后，左肘触右膝→下一次右肘触左膝，像卷纸一样卷起背部而非直起直落", safety:"不要猛拽脖子，腹肌发力带动上身", source:"李小龙认为转体起坐比普通仰卧起坐更有效——锻炼腹外斜肌，练成结实紧收的腰身" },
+      { name:"提踵（站姿）", muscle:"小腿", equipment:"木块/台阶（3-4英寸厚）", alt:"坐姿提踵", sets:3, reps:"15", weight:0, key:"calf_raise",
+        tip:"脚尖站在3-4英寸厚木板上，脚跟下降至最低→尽量抬高身体，脚踝做最大幅度运动", safety:"第一个月只用自重，之后逐渐增加负重", source:"李小龙：提踵是锻炼小腿与脚踝肌腱的最佳练习之一——增强踢击的爆发力和稳定性" }
     ]
   },
   {
