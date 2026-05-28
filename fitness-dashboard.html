@@ -805,7 +805,7 @@ function calcProgress() {
   const day = workoutDays[dataDay()];
   let totalSets = 0, doneSets = 0, totalWt = 0;
   day.exercises.forEach((ex, ei) => {
-    const k = `${currentDay}_${ei}`;
+    const k = `${dataDay()}_${ei}`;
     const d = data[k];
     totalSets += ex.sets;
     doneSets += d.setsDone;
@@ -859,7 +859,7 @@ function renderExercises() {
   const day = workoutDays[dataDay()];
   let html = '';
   day.exercises.forEach((ex, ei) => {
-    const k = `${currentDay}_${ei}`;
+    const k = `${dataDay()}_${ei}`;
     const d = data[k];
     const allDone = d.setsDone >= ex.sets;
     html += `<div class="card text-center ${allDone ? 'completed' : ''}">`;
@@ -912,11 +912,11 @@ function renderExercises() {
   renderVolumeRec();
 }
 
-function updateWeight(ei, val) { const k = `${currentDay}_${ei}`; data[k].weight = parseInt(val) || 0; saveData(); updateStats(); renderVolumeRec(); }
-function updateReps(ei, val) { const k = `${currentDay}_${ei}`; data[k].reps = val; saveData(); }
+function updateWeight(ei, val) { const k = `${dataDay()}_${ei}`; data[k].weight = parseInt(val) || 0; saveData(); updateStats(); renderVolumeRec(); }
+function updateReps(ei, val) { const k = `${dataDay()}_${ei}`; data[k].reps = val; saveData(); }
 
 function toggleSet(ei, si) {
-  const k = `${currentDay}_${ei}`;
+  const k = `${dataDay()}_${ei}`;
   const day = workoutDays[dataDay()];
   const ex = day.exercises[ei];
   if (si < data[k].setsDone) { data[k].setsDone = si; saveData(); renderExercises(); return; }
@@ -975,7 +975,7 @@ function updateStats() {
 function resetAll() {
   if (!confirm('确定要重置今日所有训练数据吗？')) return;
   workoutDays[dataDay()].exercises.forEach((ex, ei) => {
-    const k = `${currentDay}_${ei}`;
+    const k = `${dataDay()}_${ei}`;
     data[k].setsDone = 0; data[k].completed = false;
   });
   saveData(); renderExercises();
@@ -994,7 +994,7 @@ function finishWorkout() {
     date: dateStr, time: timeStr, timestamp: now.toISOString(),
     dayName: day.name, dayIndex: currentDay,
     exercises: day.exercises.map((ex, ei) => {
-      const k = `${currentDay}_${ei}`;
+      const k = `${dataDay()}_${ei}`;
       const d = data[k];
       return { name: ex.name, muscle: ex.muscle, setsDone: d.setsDone, totalSets: ex.sets, weight: d.weight, reps: d.reps };
     }),
@@ -1004,7 +1004,7 @@ function finishWorkout() {
   saveHistory();
   showToast('训练已存档！可在"复盘"查看');
   workoutDays[dataDay()].exercises.forEach((ex, ei) => {
-    const k = `${currentDay}_${ei}`;
+    const k = `${dataDay()}_${ei}`;
     data[k].setsDone = 0; data[k].completed = false;
   });
   saveData();
