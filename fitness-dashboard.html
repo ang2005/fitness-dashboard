@@ -299,6 +299,9 @@
   <button class="day-tab" data-day="1">周三 · Day A · 上肢力量</button>
   <button class="day-tab" data-day="2">周五 · Day B · 腿与核心</button>
   <button class="day-tab" data-day="3">Day 静力 · 等长训练</button>
+  <button class="day-tab" data-day="4">周二 · 有氧 · 爬楼机</button>
+  <button class="day-tab" data-day="5">周四 · 有氧 · 跑步机</button>
+  <button class="day-tab" data-day="6">周六 · 有氧 · 自行车</button>
 </div>
 
 <div class="grid grid-cols-3 gap-2 mb-5">
@@ -598,8 +601,44 @@ const workoutDays = [
       { name:"蛙式举腿（收尾）", muscle:"腹、髋屈肌", equipment:"引体向上杠/单杠", alt:"仰卧举腿静力（双腿伸直离地15cm保持）", sets:1, reps:"10秒", weight:0, key:"iso_frog_kick",
         tip:"悬垂于单杠→双膝提至胸部→用腹部最大力量保持收腿姿势6-12秒", safety:"握力不足时使用助力带；下杠时不要直接跳下", source:"李小龙静力训练收尾动作——核心肌群的终极静力刺激，同时拉伸脊柱" }
     ]
-  }
+  },
+
+  {
+    name: "周二 · 有氧 · 爬楼机", focus: "心肺、下肢耐力、燃脂",
+    exercises: [
+      { name:"热身 · 慢速攀登", muscle:"心肺", equipment:"爬楼机", alt:"原地踏步 5 分钟", sets:1, reps:"5 分钟", weight:0, key:"stair_warmup",
+        tip:"速度 40-50 步/分钟，level 3-4，心率逐渐升至 110-120 bpm", safety:"手扶扶手保持平衡但不要撑体重，身体直立不前倾", source:"爬楼机是减脂效率最高的有氧器械之一——同时锻炼臀大肌和小腿" },
+      { name:"主训练 · 中等强度攀登", muscle:"心肺", equipment:"爬楼机", alt:"户外爬楼梯 20 分钟", sets:1, reps:"20 分钟", weight:0, key:"stair_main",
+        tip:"速度 55-70 步/分钟，level 5-7，心率维持 130-150 bpm——RPE 5-6（能说话但不能唱歌）", safety:"核心收紧全脚掌踩实踏板，不要只用前脚掌", source:"NASM 推荐减脂期每周 150 分钟中等强度有氧——爬楼机对臀部刺激远大于跑步" },
+      { name:"整理 · 慢速 + 下肢拉伸", muscle:"下肢", equipment:"爬楼机", alt:"原地拉伸 5 分钟", sets:1, reps:"5 分钟", weight:0, key:"stair_cooldown",
+        tip:"速度降至 30-40 步/分钟，level 2-3，心率回到 100 bpm 以下后拉伸股四头肌和腘绳肌", safety:"不要急停——先降速 2 分钟再下机，防止头晕", source:"冷身期逐渐降低强度可防止血液淤积在下肢" }
+    ]
+  },
+  {
+    name: "周四 · 有氧 · 跑步机", focus: "心肺、下肢耐力、燃脂",
+    exercises: [
+      { name:"热身 · 快走", muscle:"心肺", equipment:"跑步机", alt:"户外快走 5 分钟", sets:1, reps:"5 分钟", weight:0, key:"tread_warmup",
+        tip:"速度 4-5 km/h，坡度 0%，摆臂自然，心率逐渐升至 110-120 bpm", safety:"先站两侧踏板上再开机，适应速度后再上跑带", source:"跑步机坡度走是关节友好的有氧方式——对膝盖冲击远小于跑步" },
+      { name:"主训练 · 坡度快走", muscle:"心肺", equipment:"跑步机", alt:"户外上坡快走 25 分钟", sets:1, reps:"25 分钟", weight:0, key:"tread_main",
+        tip:"速度 5-6 km/h，坡度 3-6%，心率维持 130-150 bpm——RPE 5-6，大步幅不扶把手更能激活核心", safety:"坡度不超过 6%（新手安全上限），不扶把手走路效果更好", source:"12-3-30 法则（坡度12/速度3/30分钟）是公认减脂方案——新手版：坡度3-6/速度5-6" },
+      { name:"整理 · 慢走", muscle:"下肢", equipment:"跑步机", alt:"原地慢走 5 分钟", sets:1, reps:"5 分钟", weight:0, key:"tread_cooldown",
+        tip:"速度降至 3-4 km/h，坡度 0%，心率回到 100 bpm 以下", safety:"降速后走 2 分钟再下机——突然停下会导致静脉回流骤降", source:"运动后冷身期不可跳过——防止血液淤积和头晕" }
+    ]
+  },
+  {
+    name: "周六 · 有氧 · 自行车", focus: "心肺、下肢耐力、燃脂",
+    exercises: [
+      { name:"热身 · 轻松踩踏", muscle:"心肺", equipment:"固定自行车", alt:"户外慢骑 5 分钟", sets:1, reps:"5 分钟", weight:0, key:"bike_warmup",
+        tip:"阻力 3-4，踏频 70-80 RPM，心率逐渐升至 110-120 bpm", safety:"座垫高度调至髋关节高度——踩到底膝盖微屈不锁死", source:"自行车是三种有氧中对关节压力最小的——适合大体重或膝盖敏感者" },
+      { name:"主训练 · 中等强度骑行", muscle:"心肺", equipment:"固定自行车", alt:"户外骑行 20 分钟", sets:1, reps:"20 分钟", weight:0, key:"bike_main",
+        tip:"阻力 5-7，踏频 70-80 RPM，心率维持 130-150 bpm——RPE 5-6（能说话但不能唱歌）", safety:"膝盖方向与脚尖一致——不要外翻内扣", source:"70-80 RPM 是最经济的踏频区间——能量效率最高，适合长时间燃脂" },
+      { name:"整理 · 轻松踩踏 + 拉伸", muscle:"下肢", equipment:"固定自行车", alt:"原地拉伸 5 分钟", sets:1, reps:"5 分钟", weight:0, key:"bike_cooldown",
+        tip:"阻力 2-3，踏频 60 RPM，心率回到 100 bpm 以下后拉伸股四头肌和腘绳肌", safety:"慢慢降阻降速——不要急停", source:"每次有氧后拉伸大腿前后侧——避免第二天肌肉僵硬" }
+    ]
+  },
+
 ];
+
 
 // 热身数据（每日训练前）
 const warmupData = [
@@ -633,8 +672,29 @@ const warmupData = [
     { name:"肩部环绕 + 腕部活动", duration:"各 10 次", tip:"注意手腕屈伸，静力训练手腕压力大" },
     { name:"空杠各角度试推", duration:"3 个角度 × 5 秒", tip:"用空杠在锁定位、起始位、半蹲位试压，找到今日销位" },
     { name:"深呼吸调整", duration:"5 次深腹式呼吸", tip:"吸气3秒→屏息2秒→呼气4秒，进入专注状态" }
-  ]
+  ],
+
+  [
+    { name:"关节环绕", duration:"各 10 次", tip:"颈→肩→腕→髋→膝→踝，幅度由小到大" },
+    { name:"腿部摆动", duration:"前后+左右 各 10 次", tip:"单手扶墙，前后摆腿→左右摆腿，激活髋关节" },
+    { name:"原地踏步", duration:"2 分钟", tip:"大腿抬至平行地面，摆臂自然，预热下肢" },
+    { name:"深呼吸调整", duration:"5 次", tip:"鼻吸3秒→口呼4秒，进入训练状态" }
+  ],
+  [
+    { name:"关节环绕", duration:"各 10 次", tip:"颈→肩→腕→髋→膝→踝，幅度由小到大" },
+    { name:"开合跳", duration:"15 次", tip:"节奏稳定，呼吸均匀" },
+    { name:"高抬腿原地跑", duration:"30 秒", tip:"大腿抬至平行地面，激活核心和下肢" },
+    { name:"深呼吸调整", duration:"5 次", tip:"鼻吸3秒→口呼4秒，进入训练状态" }
+  ],
+  [
+    { name:"关节环绕", duration:"各 10 次", tip:"颈→肩→腕→髋→膝→踝，幅度由小到大" },
+    { name:"腿部摆动", duration:"前后+左右 各 10 次", tip:"单手扶墙，前后摆腿→左右摆腿，激活髋关节" },
+    { name:"坐姿转体", duration:"每侧 10 次", tip:"坐姿双手抱胸→左右转体，激活核心" },
+    { name:"深呼吸调整", duration:"5 次", tip:"鼻吸3秒→口呼4秒，进入训练状态" }
+  ],
+
 ];
+
 
 // 拉伸数据（每日训练后）
 const stretchData = [
@@ -668,8 +728,32 @@ const stretchData = [
     { name:"颈部拉伸", duration:"每侧 15 秒", tip:"头缓慢侧倾→手轻压→左右各一次，不可用力过猛" },
     { name:"肩部环绕放松", duration:"前后各 10 次", tip:"缓慢大幅绕圈，感受肩关节活动范围恢复" },
     { name:"仰卧全身伸展", duration:"60 秒", tip:"仰卧→四肢张开→深呼吸→从头到脚依次放松" }
-  ]
+  ],
+
+  [
+    { name:"股四头肌拉伸", duration:"每侧 30 秒", tip:"单腿站立→屈膝手握脚踝→脚跟靠近臀部" },
+    { name:"腘绳肌拉伸", duration:"每侧 30 秒", tip:"坐姿一腿伸直→身体前倾→保持背部挺直" },
+    { name:"小腿拉伸", duration:"每侧 30 秒", tip:"弓步双手推墙→后腿伸直脚跟不离地→身体前倾" },
+    { name:"髋屈肌拉伸", duration:"每侧 30 秒", tip:"弓步姿势→后膝着地→髋部前推至大腿前侧有拉伸感" },
+    { name:"深呼吸放松", duration:"5 次", tip:"仰卧闭眼，鼻吸口呼，全身依次放松" }
+  ],
+  [
+    { name:"股四头肌拉伸", duration:"每侧 30 秒", tip:"单腿站立→屈膝手握脚踝→脚跟靠近臀部" },
+    { name:"腘绳肌拉伸", duration:"每侧 30 秒", tip:"坐姿一腿伸直→身体前倾→保持背部挺直" },
+    { name:"小腿拉伸", duration:"每侧 30 秒", tip:"弓步双手推墙→后腿伸直脚跟不离地→身体前倾" },
+    { name:"下背部拉伸（婴儿式）", duration:"30 秒", tip:"跪姿臀部坐脚跟→手臂前伸→额头贴地" },
+    { name:"深呼吸放松", duration:"5 次", tip:"仰卧闭眼，鼻吸口呼，全身依次放松" }
+  ],
+  [
+    { name:"股四头肌拉伸", duration:"每侧 30 秒", tip:"单腿站立→屈膝手握脚踝→脚跟靠近臀部" },
+    { name:"腘绳肌拉伸", duration:"每侧 30 秒", tip:"坐姿一腿伸直→身体前倾→保持背部挺直" },
+    { name:"髋屈肌拉伸", duration:"每侧 30 秒", tip:"弓步姿势→后膝着地→髋部前推至大腿前侧有拉伸感" },
+    { name:"脊柱扭转拉伸", duration:"每侧 30 秒", tip:"仰卧一腿跨过身体→对侧手轻压膝盖→双肩不离地" },
+    { name:"深呼吸放松", duration:"5 次", tip:"仰卧闭眼，鼻吸口呼，全身依次放松" }
+  ],
+
 ];
+
 
 function renderWarmup() {
   const container = document.getElementById('warmupSection');
@@ -778,7 +862,7 @@ function renderExercises() {
     html += `<div class="card text-center ${allDone ? 'completed' : ''}">`;
 
     // 动作名 + 组数次数组
-    const repsLabel = ex.reps.includes('秒') ? ex.reps : ex.reps + ' 次';
+    const repsLabel = (ex.reps.includes('秒') || ex.reps.includes('分钟')) ? ex.reps : ex.reps + ' 次';
     html += `<div class="text-base font-extrabold text-white mb-1">${ex.name}</div>`;
     html += `<div class="text-xs mb-2" style="color:var(--muted)">${ex.sets} 组 × ${repsLabel}</div>`;
 
